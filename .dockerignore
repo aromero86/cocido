@@ -1,0 +1,7 @@
+node_modules
+dist
+.astro
+.git
+wireframe
+.vscode
+.DS_Store

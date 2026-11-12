@@ -1,0 +1,73 @@
+---
+import { GitPullRequest } from 'lucide-react'
+import { PACKAGE } from '@/config/site'
+import { landing, type Lang } from '@/i18n/landing'
+import SectionHeading from './SectionHeading.astro'
+import StoryMap from './StoryMap.astro'
+
+interface Props { lang: Lang }
+const { lang } = Astro.props
+const t = landing[lang].review
+const problem = landing[lang].problem
+
+const verdictClass: Record<string, string> = {
+  done: 'text-brand',
+  missing: 'text-red-600 dark:text-red-400',
+  unplanned: 'text-pop',
+}
+---
+<section class="screen border-b bg-muted/30">
+  <div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-24 sm:px-6 lg:gap-8 lg:py-12">
+    <SectionHeading eyebrow={t.eyebrow.replace('%PKG%', PACKAGE)} title={t.title} rest={t.rest} lead={t.lead} paper="4" />
+
+    <!-- The same pull request as the problem's, now held against its plan. -->
+    <figure class="overflow-hidden rounded-xl border bg-card shadow-lg">
+      <header class="flex min-w-0 items-center gap-2.5 border-b bg-muted/40 px-4 py-2.5">
+        <GitPullRequest className="size-4 shrink-0 text-muted-foreground" />
+        <span class="truncate text-sm font-medium">{problem.pr} <span class="font-normal text-muted-foreground">#212</span></span>
+        <span class="ml-auto hidden shrink-0 font-mono text-xs text-muted-foreground line-through decoration-muted-foreground/60 sm:inline">{t.size}</span>
+      </header>
+      <div class="grid gap-8 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-center">
+        <div class="flex flex-col gap-5">
+          <div class="flex flex-col gap-1">
+            <h3 class="text-lg font-semibold tracking-tight">{t.heading}</h3>
+            <p class="text-xl font-semibold text-red-600 dark:text-red-400">{t.verdict}</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{t.stepsTitle}</p>
+            <ol class="flex flex-col gap-1.5 text-sm">
+              {t.steps.map((step, index) => (
+                <li class="flex flex-wrap gap-x-2">
+                  <span class="font-mono text-muted-foreground">{index + 1}.</span>{step.title}
+                  <span class:list={['font-mono text-xs leading-5', index === 0 ? 'text-brand' : 'text-red-600 dark:text-red-400']}>· {step.state}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{t.checksTitle}</p>
+            <ul class="flex flex-col gap-1.5">
+              {t.checks.map((check) => (
+                <li class="flex flex-wrap items-baseline gap-x-2 text-sm">
+                  <span class:list={['w-28 shrink-0 font-mono text-xs font-semibold', verdictClass[check.verdict]]}>{check.label}</span>
+                  <code class="font-mono text-[12px]">{check.id}</code>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{t.rulesTitle}</p>
+            <ul class="flex flex-col gap-1.5 text-sm">
+              {t.rules.map((rule) => <li class="flex gap-2"><span class="font-mono font-bold text-pop">!</span>{rule}</li>)}
+            </ul>
+          </div>
+        </div>
+        <StoryMap lang={lang} mode="review" />
+      </div>
+      <footer class="flex flex-wrap items-center gap-x-4 gap-y-1 border-t bg-muted/40 px-4 py-2.5 font-mono text-xs text-muted-foreground">
+        <span class="min-w-0 truncate"><span class="text-brand">$</span> {t.command}</span>
+        <span class="ml-auto rounded bg-red-500/15 px-1.5 py-0.5 font-semibold text-red-600 dark:text-red-400">{t.exit}</span>
+      </footer>
+    </figure>
+  </div>
+</section>

@@ -1,0 +1,45 @@
+---
+import '../styles/global.css'
+import Header from '../components/landing/Header.astro'
+import Footer from '../components/landing/Footer.astro'
+import type { Lang } from '../i18n/landing'
+
+interface Props {
+  lang: Lang
+  title: string
+  description: string
+  /** The same page in the other language. */
+  alternate: string
+}
+
+const { lang, title, description, alternate } = Astro.props
+---
+
+<!doctype html>
+<html lang={lang} data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="alternate" hreflang={lang === 'en' ? 'es' : 'en'} href={alternate} />
+    <script is:inline>
+      // Starlight's own key and attribute, so the landing and the docs share the reader's choice.
+      ;(() => {
+        let stored = ''
+        try { stored = localStorage.getItem('starlight-theme') ?? '' } catch {}
+        const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
+        const theme = stored === 'light' || stored === 'dark' ? stored : prefersDark ? 'dark' : 'light'
+        document.documentElement.dataset.theme = theme
+      })()
+    </script>
+  </head>
+  <body class="min-h-dvh">
+    <Header lang={lang} alternate={alternate} />
+    <main>
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

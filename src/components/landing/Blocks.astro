@@ -1,0 +1,293 @@
+---
+import { Code } from 'astro:components'
+import { PACKAGE } from '@/config/site'
+import { landing, type Lang } from '@/i18n/landing'
+import SectionHeading from './SectionHeading.astro'
+import { blocksCode } from './blocks-code'
+
+interface Props { lang: Lang }
+const { lang } = Astro.props
+const t = landing[lang].blocks
+const names = Object.fromEntries(t.items.map((item) => [item.id, item.name]))
+
+const labels = Object.fromEntries(t.items.map((item) => [item.id, item.label]))
+
+// The diagram, in its viewBox: the boards context, its database, and the two modules a deleted card goes through.
+const W = 124
+const H = 56
+const nodes = [
+  { id: 'route', x: 152, y: 92 },
+  { id: 'useCase', x: 296, y: 92 },
+  { id: 'entity', x: 440, y: 92 },
+  { id: 'repository', x: 152, y: 196 },
+  { id: 'event', x: 440, y: 196 },
+  { id: 'reaction', x: 296, y: 352 },
+  { id: 'worker', x: 440, y: 352 },
+  { id: 'scheduler', x: 152, y: 352 },
+]
+// Each wire lights up with the step it leads to.
+const wires = [
+  { id: 'request', step: 'route', d: 'M0,120 L152,120' },
+  { id: 'route-use', step: 'useCase', d: 'M276,120 L296,120' },
+  { id: 'use-entity', step: 'entity', d: 'M420,120 L440,120' },
+  { id: 'use-repo', step: 'repository', d: 'M358,148 C358,176 214,168 214,196' },
+  { id: 'repo-db', step: 'repository', d: 'M152,224 L120,224' },
+  { id: 'entity-event', step: 'event', d: 'M502,148 L502,196' },
+  { id: 'event-worker', step: 'worker', d: 'M502,252 L502,352' },
+  { id: 'worker-reaction', step: 'reaction', d: 'M440,380 L420,380' },
+  { id: 'scheduler-worker', step: 'scheduler', d: 'M214,408 C214,448 502,448 502,408' },
+]
+const modules = [
+  { name: 'card', y: 48, h: 228, steps: ['route', 'useCase', 'entity', 'repository', 'event'] },
+  { name: 'attachment', y: 300, h: 168, steps: ['worker', 'reaction', 'scheduler'] },
+]
+---
+<section class="screen relative overflow-hidden border-b">
+  <div aria-hidden="true" class="pointer-events-none absolute left-1/4 top-1/2 size-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/10 blur-3xl"></div>
+
+  <div class="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 py-28 sm:px-6 lg:gap-8 lg:py-12" data-blocks>
+    <SectionHeading eyebrow={t.eyebrow.replace('%PKG%', PACKAGE)} title={t.title} rest={t.rest} lead={t.lead} paper="2" />
+
+    <div class="grid min-w-0 grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start">
+      <div class="flex min-w-0 flex-col gap-6">
+        <svg viewBox="0 0 600 488" class="blocks-diagram w-full" role="img" aria-label={t.items.map((item) => `${item.name}: ${item.label}`).join(', ')}>
+          <g class="frame frame-context">
+            <rect x="8" y="8" width="584" height="472" rx="20" />
+            <text x="28" y="34" class="frame-label">context · boards</text>
+          </g>
+          {modules.map((module) => (
+            <g class="frame" data-frame={module.steps.join(' ')}>
+              <rect x="136" y={module.y} width="440" height={module.h} rx="14" />
+              <text x="152" y={module.y + 24} class="frame-label">module · {module.name}</text>
+            </g>
+          ))}
+
+          <g class="node db" data-also="repository reaction">
+            <path d="M24,196 a48,10 0 0,0 96,0 a48,10 0 0,0 -96,0 v56 a48,10 0 0,0 96,0 v-56" />
+            <text x="72" y="228" text-anchor="middle" class="node-name">{t.db}</text>
+            <text x="72" y="246" text-anchor="middle" class="node-label">card · outbox</text>
+          </g>
+
+          {wires.map((wire) => (
+            <g class="wire" data-wire={wire.step}>
+              <path id={`wire-${wire.id}`} d={wire.d} />
+              <circle r="4" class="pulse">
+                <animateMotion dur="1.4s" repeatCount="indefinite"><mpath href={`#wire-${wire.id}`} /></animateMotion>
+              </circle>
+            </g>
+          ))}
+          <text x="512" y="292" class="wire-label">outbox</text>
+
+          {nodes.map((node) => (
+            <g class="node" data-node={node.id} tabindex="0" role="button" aria-label={`${names[node.id]}: ${labels[node.id]}`}>
+              <rect x={node.x} y={node.y} width={W} height={H} rx="10" />
+              <text x={node.x + W / 2} y={node.y + 25} text-anchor="middle" class="node-name">{names[node.id]}</text>
+              <text x={node.x + W / 2} y={node.y + 43} text-anchor="middle" class="node-label">{labels[node.id]}</text>
+            </g>
+          ))}
+        </svg>
+
+        <div class="flex flex-col gap-4">
+          <div class="grid" data-captions>
+            {t.items.map((item, index) => (
+              <div class="caption flex flex-col gap-1.5" data-caption={item.id} aria-hidden={index !== 0 ? 'true' : 'false'}>
+                <span class="font-mono text-xs text-brand">{String(index + 1).padStart(2, '0')} / {String(t.items.length).padStart(2, '0')}</span>
+                <span class="text-2xl font-semibold tracking-tight">{item.name}</span>
+                <span class="text-muted-foreground">{item.text}</span>
+              </div>
+            ))}
+          </div>
+          <div class="flex gap-1.5" role="tablist" aria-label={t.eyebrow}>
+            {t.items.map((item, index) => (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={index === 0 ? 'true' : 'false'}
+                aria-label={item.name}
+                data-step={item.id}
+                class="group relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted py-0 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              ><span class="step-fill absolute inset-y-0 left-0 w-0 rounded-full bg-brand"></span></button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="relative min-w-0">
+        <div class="overflow-hidden rounded-xl border bg-card/80 shadow-2xl shadow-brand/5 backdrop-blur">
+          <div class="flex items-center gap-2 border-b bg-muted/50 px-4 py-2.5">
+            <span class="size-2.5 rounded-full bg-foreground/15"></span>
+            <span class="size-2.5 rounded-full bg-foreground/15"></span>
+            <span class="size-2.5 rounded-full bg-foreground/15"></span>
+            <div class="ml-2 grid min-w-0 flex-1">
+              {t.items.map((item, index) => (
+                <span class="file truncate font-mono text-xs text-muted-foreground" data-file={item.id} aria-hidden={index !== 0 ? 'true' : 'false'}>{blocksCode[item.id].file}</span>
+              ))}
+            </div>
+          </div>
+          <div class="relative overflow-hidden transition-[height] duration-500 ease-out" data-code>
+            {t.items.map((item, index) => (
+              <div class:list={['code-panel min-w-0', index === 0 && 'is-active']} data-panel={item.id} aria-hidden={index !== 0 ? 'true' : 'false'}>
+                <Code
+                  code={blocksCode[item.id].code}
+                  lang="ts"
+                  themes={{ light: 'gruvbox-light-medium', dark: 'gruvbox-dark-medium' }}
+                  defaultColor={false}
+                  class="blocks-code overflow-x-auto px-4 py-5 leading-relaxed sm:px-5"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .blocks-code { background: transparent !important; }
+  .blocks-code, .blocks-code span { color: var(--shiki-light); }
+  [data-theme='dark'] .blocks-code, [data-theme='dark'] .blocks-code span { color: var(--shiki-dark); }
+
+  /* Captions, file names and code panels share one grid cell each, and crossfade. */
+  /* Code panels lie on top of each other; the window takes the height of the one shown. */
+  [data-blocks] .code-panel { position: absolute; inset: 0 0 auto 0; transition: opacity 0.45s ease, transform 0.45s ease; }
+  .blocks-code { font-size: clamp(10.5px, 2.9vw, 13px); }
+  @media (min-width: 1024px) { .blocks-code { font-size: clamp(11px, 1.1vw, 13px); } }
+
+  [data-blocks] .caption,
+  [data-blocks] .file { grid-area: 1 / 1; transition: opacity 0.45s ease, transform 0.45s ease; }
+  [data-blocks] [aria-hidden='true'].caption,
+  [data-blocks] [aria-hidden='true'].file,
+  [data-blocks] [aria-hidden='true'].code-panel { opacity: 0; transform: translateY(6px); pointer-events: none; }
+
+  [data-blocks] .code-panel.is-active .line { animation: block-line-in 0.5s both cubic-bezier(0.2, 0.7, 0.2, 1); animation-delay: calc(var(--i, 0) * 35ms); }
+  @keyframes block-line-in { from { opacity: 0; transform: translateX(-10px); filter: blur(2px); } }
+
+  .blocks-diagram { overflow: visible; font-family: var(--font-sans); }
+  .blocks-diagram .frame rect { fill: color-mix(in srgb, var(--muted) 35%, transparent); stroke: var(--border); stroke-width: 1.5; transition: stroke 0.4s, fill 0.4s; }
+  .blocks-diagram .frame-context rect { fill: transparent; stroke-dasharray: 6 6; }
+  .blocks-diagram .frame-label { font-family: var(--font-mono); font-size: 12px; fill: var(--muted-foreground); transition: fill 0.4s; }
+  .blocks-diagram .frame.is-active rect { stroke: color-mix(in srgb, var(--brand) 45%, var(--border)); fill: color-mix(in srgb, var(--brand) 5%, transparent); }
+  .blocks-diagram .frame.is-active .frame-label { fill: var(--brand); }
+
+  .blocks-diagram .wire path { fill: none; stroke: color-mix(in srgb, var(--foreground) 22%, transparent); stroke-width: 2; stroke-dasharray: 5 7; animation: block-flow 1.2s linear infinite; transition: stroke 0.4s; }
+  .blocks-diagram .wire .pulse { fill: var(--brand); opacity: 0; transition: opacity 0.3s; }
+  .blocks-diagram .wire.is-active path { stroke: var(--brand); }
+  .blocks-diagram .wire.is-active .pulse { opacity: 1; }
+  .blocks-diagram .wire-label { font-family: var(--font-mono); font-size: 11px; fill: var(--muted-foreground); }
+  @keyframes block-flow { to { stroke-dashoffset: -24; } }
+
+  .blocks-diagram .node { cursor: pointer; outline: none; }
+  .blocks-diagram .node rect, .blocks-diagram .node.db path { fill: var(--card); stroke: var(--border); stroke-width: 1.5; transition: fill 0.4s, stroke 0.4s, filter 0.4s; }
+  .blocks-diagram .node .node-name { font-size: 14px; font-weight: 500; fill: var(--muted-foreground); transition: fill 0.4s; }
+  .blocks-diagram .node .node-label { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted-foreground); opacity: 0.75; transition: fill 0.4s, opacity 0.4s; }
+  .blocks-diagram .node.db { cursor: default; }
+  .blocks-diagram .node:hover rect, .blocks-diagram .node:focus-visible rect { stroke: var(--foreground); }
+  .blocks-diagram .node.is-active rect, .blocks-diagram .node.db.is-active path { fill: color-mix(in srgb, var(--brand) 18%, var(--card)); stroke: var(--brand); filter: drop-shadow(0 0 14px color-mix(in srgb, var(--brand) 45%, transparent)); }
+  .blocks-diagram .node.is-active .node-name { fill: var(--foreground); }
+  .blocks-diagram .node.is-active .node-label { fill: var(--brand); opacity: 1; }
+
+  [data-blocks] [aria-selected='true'] .step-fill { animation: block-step var(--step-ms, 5200ms) linear forwards; }
+  [data-blocks].is-paused [aria-selected='true'] .step-fill { animation-play-state: paused; }
+  [data-blocks] .is-done .step-fill { width: 100%; }
+  @keyframes block-step { to { width: 100%; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blocks-diagram .wire path { animation: none; }
+    .blocks-diagram .wire .pulse { display: none; }
+    [data-blocks] .code-panel.is-active .line { animation: none; }
+    [data-blocks] [aria-selected='true'] .step-fill { animation: none; width: 100%; }
+  }
+</style>
+
+<script>
+  const STEP_MS = 5200
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-blocks]')) {
+    const steps = [...root.querySelectorAll<HTMLButtonElement>('[data-step]')]
+    const order = steps.map((step) => step.dataset.step!)
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+    let current = 0
+    let timer: number | undefined
+    let deadline = 0
+    let remaining = STEP_MS
+    let visible = false
+    let paused = false
+
+    // Each code line enters a beat after the one above it.
+    for (const panel of root.querySelectorAll<HTMLElement>('[data-panel]')) {
+      panel.querySelectorAll<HTMLElement>('.line').forEach((line, i) => line.style.setProperty('--i', String(i)))
+    }
+
+    const show = (index: number) => {
+      current = index
+      const id = order[index]
+      steps.forEach((step, i) => {
+        step.setAttribute('aria-selected', String(i === index))
+        step.classList.toggle('is-done', i < index)
+        // Restarting its fill: the animation runs again from empty.
+        const fill = step.querySelector<HTMLElement>('.step-fill')!
+        fill.style.animation = 'none'
+        void fill.offsetWidth
+        fill.style.animation = ''
+      })
+      for (const el of root.querySelectorAll<HTMLElement>('[data-caption]')) el.setAttribute('aria-hidden', String(el.dataset.caption !== id))
+      for (const el of root.querySelectorAll<HTMLElement>('[data-file]')) el.setAttribute('aria-hidden', String(el.dataset.file !== id))
+      for (const el of root.querySelectorAll<HTMLElement>('[data-panel]')) {
+        const on = el.dataset.panel === id
+        el.setAttribute('aria-hidden', String(!on))
+        el.classList.remove('is-active')
+        if (on) { void el.offsetWidth; el.classList.add('is-active') }
+      }
+      fit()
+      for (const el of root.querySelectorAll<SVGElement>('[data-node]')) el.classList.toggle('is-active', el.dataset.node === id)
+      for (const el of root.querySelectorAll<SVGElement>('[data-wire]')) el.classList.toggle('is-active', el.dataset.wire === id)
+      for (const el of root.querySelectorAll<SVGElement>('[data-frame]')) el.classList.toggle('is-active', el.dataset.frame!.split(' ').includes(id))
+      for (const el of root.querySelectorAll<SVGElement>('[data-also]')) el.classList.toggle('is-active', el.dataset.also!.split(' ').includes(id))
+      remaining = STEP_MS
+      schedule()
+    }
+
+    const schedule = () => {
+      clearTimeout(timer)
+      if (reduced || !visible || paused) return
+      deadline = Date.now() + remaining
+      timer = window.setTimeout(() => show((current + 1) % order.length), remaining)
+    }
+
+    const code = root.querySelector<HTMLElement>('[data-code]')!
+    const fit = () => {
+      const panel = code.querySelector<HTMLElement>(`[data-panel="${order[current]}"]`)!
+      code.style.height = `${panel.offsetHeight}px`
+    }
+    new ResizeObserver(fit).observe(code)
+
+    root.style.setProperty('--step-ms', `${STEP_MS}ms`)
+    const pause = (on: boolean) => {
+      paused = on
+      root.classList.toggle('is-paused', on)
+      if (on) {
+        clearTimeout(timer)
+        remaining = Math.max(0, deadline - Date.now())
+      } else schedule()
+    }
+    root.addEventListener('mouseenter', () => pause(true))
+    root.addEventListener('mouseleave', () => pause(false))
+
+    steps.forEach((step, i) => step.addEventListener('click', () => show(i)))
+    for (const node of root.querySelectorAll<SVGElement>('[data-node]')) {
+      const go = () => show(order.indexOf(node.dataset.node!))
+      node.addEventListener('click', go)
+      node.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); go() } })
+    }
+
+    new IntersectionObserver(([entry]) => {
+      const was = visible
+      visible = entry.isIntersecting
+      if (visible && !was) show(current)
+      else if (!visible) clearTimeout(timer)
+    }, { threshold: 0.35 }).observe(root)
+
+    show(0)
+  }
+</script>

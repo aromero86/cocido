@@ -1,0 +1,42 @@
+---
+/**
+ * cocido's logotype: its six letters cut out of different papers, like a ransom note, all of them
+ * gruvbox's greens. Brought from the old guide's logotype, with two papers more for the longer word.
+ * `only` draws a single cut-out: the landing flies each on its own.
+ */
+import '@fontsource/abril-fatface/latin-400.css'
+import '@fontsource/bowlby-one/latin-400.css'
+import '@fontsource/playfair-display/latin-900-italic.css'
+import '@fontsource/rubik-mono-one/latin-400.css'
+
+interface Props { class?: string; only?: number }
+const { class: className = '', only } = Astro.props
+const word = ['c', 'o', 'c', 'i', 'd', 'o']
+const letters = only === undefined ? word.map((_, index) => index) : [only]
+---
+<span class:list={['cocido-logo', className]} role="img" aria-label="cocido">
+  {letters.map((index) => <span class={`cut cut-${index}`} style={`--i:${index}`} aria-hidden="true">{word[index]}</span>)}
+</span>
+
+<style is:global>
+  /* Global: the docs draw it too, and each cut-out keeps its paper wherever it is. */
+  .cocido-logo { position: relative; display: inline-flex; align-items: center; gap: .07em; line-height: 1; letter-spacing: 0; white-space: nowrap; }
+  :where(.cocido-logo) { font-size: 22px; }
+  .cocido-logo .cut { display: inline-grid; place-items: center; height: 1.08em; padding: 0 .12em; box-shadow: 0 .03em 0 rgba(0, 0, 0, .18); transform: rotate(var(--turn)) translateY(var(--lift, 0)); }
+  .cocido-logo .cut-0 { --turn: -5deg; font-family: 'Bowlby One', sans-serif; background: #427b58; color: #fbf1c7; }
+  .cocido-logo .cut-1 { --turn: 4deg; --lift: -.07em; font-family: 'Playfair Display', serif; font-style: italic; font-weight: 900; background: #fbf1c7; color: #427b58; outline: 1px solid #d5c4a1; }
+  .cocido-logo .cut-2 { --turn: -1deg; --lift: .07em; font-family: 'Rubik Mono One', monospace; font-size: .85em; height: 1.27em; background: #8ec07c; color: #1d2021; }
+  .cocido-logo .cut-3 { --turn: 6deg; font-family: 'Abril Fatface', serif; background: #79740e; color: #fbf1c7; }
+  .cocido-logo .cut-4 { --turn: -4deg; --lift: -.05em; font-family: 'Bowlby One', sans-serif; font-size: .9em; height: 1.2em; background: #b8bb26; color: #1d2021; }
+  .cocido-logo .cut-5 { --turn: 3deg; --lift: .04em; font-family: 'Abril Fatface', serif; background: #689d6a; color: #fbf1c7; }
+
+  /* The cut-outs shuffle when the pointer is on them. */
+  a:hover > .cocido-logo .cut, .cocido-logo:hover .cut { animation: cocido-shuffle .45s cubic-bezier(.3, 1.6, .5, 1) both; animation-delay: calc(var(--i) * .04s); }
+  @keyframes cocido-shuffle {
+    40% { transform: rotate(calc(var(--turn) * -2.2)) translateY(-.12em) scale(1.08); }
+    100% { transform: rotate(var(--turn)) translateY(var(--lift, 0)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .cocido-logo .cut { animation: none !important; } }
+</style>
+

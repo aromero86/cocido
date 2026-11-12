@@ -1,0 +1,118 @@
+---
+/**
+ * One story drawn on the application's map: due dates on cards, which a card sets and a reminder
+ * listens to. `plan` draws it as planned (what is new, its two steps lighting in turn); `review`
+ * draws the branch held against it (what is done, what is missing, and the call nobody planned:
+ * the card calling notifications itself, as the pull request of the problem does).
+ */
+import { landing, type Lang } from '@/i18n/landing'
+
+interface Props { lang: Lang; mode: 'plan' | 'review' }
+const { lang, mode } = Astro.props
+const w = landing[lang].story
+const review = mode === 'review'
+
+const W = 190
+const H = 42
+const nodes = {
+  setDueDate: { x: 38, y: 84, name: 'card.setDueDate()', kind: w.useCase },
+  dueDateSet: { x: 38, y: 178, name: 'card.dueDateSet', kind: w.event },
+  schedule: { x: 312, y: 80, name: 'notification.schedule()', kind: w.useCase },
+  scheduleFor: { x: 312, y: 178, name: 'reminder.scheduleFor()', kind: w.useCase },
+}
+// What each node is: in the plan, new or already there; in the review, done, missing or there.
+const state: Record<keyof typeof nodes, string> = review
+  ? { setDueDate: 'done', dueDateSet: 'done', schedule: 'there called', scheduleFor: 'missing' }
+  : { setDueDate: 'new s1', dueDateSet: 'new s1 s2', schedule: 'there', scheduleFor: 'new s2' }
+---
+<svg class:list={['story-map w-full', mode]} viewBox="0 0 540 250" role="img" aria-label={landing[lang][mode].eyebrow.replace('%PKG%', '@cocido')}>
+  <!-- The contexts and their modules. -->
+  <rect class="ctx" x="8" y="14" width="252" height="228" rx="6" />
+  <text class="ctx-label" x="20" y="32">context · boards</text>
+  <rect class="mod" x="22" y="44" width="224" height="188" rx="5" />
+  <text class="mod-label" x="34" y="62">module · card</text>
+
+  <rect class="ctx" x="280" y="14" width="252" height="228" rx="6" />
+  <text class="ctx-label" x="292" y="32">context · notifications</text>
+  <rect class="mod there" x="296" y="44" width="222" height="88" rx="5" />
+  <text class="mod-label" x="308" y="62">module · notification</text>
+  <rect class="mod" x="296" y="142" width="222" height="90" rx="5" />
+  <text class="mod-label" x="308" y="160">module · reminder</text>
+
+  <!-- How they meet. -->
+  <g class="rel s1">
+    <path class="wire" d={`M133,${84 + H} L133,170`} />
+    <path class="tip" d="M133,177 l-5,-9 h10 Z" />
+    <text class="rel-label" x="141" y="156">{w.emits}</text>
+  </g>
+  <g class:list={['rel listen s2', review && 'missing']}>
+    <path class="wire" d={`M${38 + W},199 L304,199`} />
+    <path class="tip" d="M311,199 l-9,-5 v10 Z" />
+    <text class="rel-label" x="270" y="191" text-anchor="middle">{review ? `✗ ${w.missing}` : w.triggers}</text>
+  </g>
+  {review && (
+    <g class="rel unplanned">
+      <path class="wire" d={`M${38 + W},101 L304,101`} />
+      <path class="tip" d="M311,101 l-9,-5 v10 Z" />
+      <text class="rel-label" x="270" y="93" text-anchor="middle">+ {w.calls}</text>
+    </g>
+  )}
+
+  <!-- The pieces. -->
+  {Object.entries(nodes).map(([id, node]) => (
+    <g class:list={['node', state[id as keyof typeof nodes]]}>
+      <rect x={node.x} y={node.y} width={W} height={H} rx="4" />
+      <text class="node-name" x={node.x + 12} y={node.y + 18}>{node.name}</text>
+      <text class="node-kind" x={node.x + 12} y={node.y + 32}>{node.kind}</text>
+      {!review && state[id as keyof typeof nodes].startsWith('new') && (
+        <text class="node-badge" x={node.x + W - 10} y={node.y + 32} text-anchor="end">{w.isNew}</text>
+      )}
+      {review && state[id as keyof typeof nodes] === 'done' && <text class="node-badge" x={node.x + W - 10} y={node.y + 32} text-anchor="end">✓</text>}
+      {review && state[id as keyof typeof nodes] === 'missing' && <text class="node-badge" x={node.x + W - 10} y={node.y + 32} text-anchor="end">✗ {w.missing}</text>}
+    </g>
+  ))}
+</svg>
+
+<style is:global>
+  .story-map { font-family: var(--font-mono); overflow: visible; }
+  .story-map .ctx { fill: none; stroke: var(--border); stroke-dasharray: 4 4; }
+  .story-map .mod { fill: color-mix(in srgb, var(--card) 70%, transparent); stroke: var(--border); }
+  .story-map .mod.there { fill: none; stroke-dasharray: 2 3; }
+  .story-map .ctx-label, .story-map .mod-label { font-size: 10px; fill: var(--muted-foreground); }
+  .story-map .node rect { fill: var(--card); stroke: var(--border); stroke-width: 1.2; }
+  .story-map .node-name { font-size: 11px; fill: var(--foreground); }
+  .story-map .node-kind { font-size: 9px; fill: var(--muted-foreground); }
+  .story-map .node-badge { font-size: 9px; font-weight: 700; fill: var(--brand); }
+  .story-map .node.there { opacity: 0.55; }
+  .story-map .node.there rect { stroke-dasharray: 3 3; }
+  .story-map .wire { fill: none; stroke: var(--muted-foreground); stroke-width: 1.4; }
+  .story-map .tip { fill: var(--muted-foreground); }
+  .story-map .listen .wire { stroke-dasharray: 5 4; }
+  .story-map .rel-label { font-size: 9.5px; fill: var(--muted-foreground); }
+
+  /* The plan: what is new in green, and its two steps lighting in turn. */
+  .story-map.plan .node.new rect { stroke: var(--brand); fill: color-mix(in srgb, var(--brand) 9%, var(--card)); }
+  .story-map.plan .s1:not(.s2) { animation: story-s1 8s ease-in-out infinite; }
+  .story-map.plan .s2:not(.s1) { animation: story-s2 8s ease-in-out infinite; }
+  .story-map.plan .rel.s1 .wire, .story-map.plan .rel.s2 .wire { stroke: var(--brand); }
+  .story-map.plan .rel.s1 .tip, .story-map.plan .rel.s2 .tip { fill: var(--brand); }
+  @keyframes story-s1 { 0%, 46% { opacity: 1; } 54%, 96% { opacity: 0.3; } 100% { opacity: 1; } }
+  @keyframes story-s2 { 0%, 46% { opacity: 0.3; } 54%, 96% { opacity: 1; } 100% { opacity: 0.3; } }
+
+  /* The review: done in green, missing in red, what nobody planned in orange. */
+  .story-map.review .node.done rect { stroke: var(--brand); fill: color-mix(in srgb, var(--brand) 9%, var(--card)); }
+  .story-map.review .node.missing rect { stroke: var(--color-red-500); stroke-dasharray: 5 4; fill: color-mix(in srgb, var(--color-red-500) 6%, var(--card)); }
+  .story-map.review .node.missing .node-name, .story-map.review .node.missing .node-kind { opacity: 0.6; }
+  .story-map.review .node.missing .node-badge, .story-map.review .rel.missing .rel-label { fill: var(--color-red-500); }
+  .story-map.review .rel.missing .wire { stroke: var(--color-red-500); opacity: 0.7; }
+  .story-map.review .rel.missing .tip { fill: var(--color-red-500); opacity: 0.7; }
+  .story-map.review .rel.unplanned .wire { stroke: var(--pop); stroke-width: 2; stroke-dasharray: 6 4; animation: story-flow 1s linear infinite; }
+  .story-map.review .rel.unplanned .tip, .story-map.review .rel.unplanned .rel-label { fill: var(--pop); font-weight: 700; }
+  .story-map.review .node.called { opacity: 1; }
+  .story-map.review .node.called rect { stroke: var(--pop); }
+  @keyframes story-flow { to { stroke-dashoffset: -10; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-map .s1, .story-map .s2, .story-map .rel.unplanned .wire { animation: none !important; }
+  }
+</style>

@@ -1,0 +1,16 @@
+---
+import { landing, routes, type Lang } from '@/i18n/landing'
+import Logo from './Logo.astro'
+
+interface Props { lang: Lang }
+const { lang } = Astro.props
+const t = landing[lang]
+---
+<footer class="border-t">
+  <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-8 text-sm text-muted-foreground sm:px-6">
+    <Logo class="text-base text-foreground" />
+    <a class="hover:text-foreground" href={routes.guide[lang]}>{t.nav.guide}</a>
+    <a class="hover:text-foreground" href={routes.principles[lang]}>{t.nav.manifesto}</a>
+    <span class="sm:ml-auto">{t.footer.rights} · Angel Romero</span>
+  </div>
+</footer>

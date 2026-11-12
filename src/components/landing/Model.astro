@@ -1,0 +1,16 @@
+---
+import { PACKAGE } from '@/config/site'
+import { landing, type Lang } from '@/i18n/landing'
+import SectionHeading from './SectionHeading.astro'
+import ContextMap from './ContextMap.astro'
+
+interface Props { lang: Lang }
+const { lang } = Astro.props
+const t = landing[lang].model
+---
+<section class="screen border-b">
+  <div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-24 sm:px-6 lg:gap-8 lg:py-12">
+    <SectionHeading eyebrow={t.eyebrow.replace('%PKG%', PACKAGE)} title={t.title} rest={t.rest} lead={t.lead} paper="3" />
+    <ContextMap copy={t.map} />
+  </div>
+</section>

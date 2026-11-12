@@ -1,0 +1,514 @@
+<title>cocido web wireframe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: wireframe con look shadcn/ui + tema "Supabase" de tweakcn (Outfit, verde Supabase, radio 0.5rem). Las notas de diseño van en amarillo. */
+:root{
+  --bg:#fcfcfc; --paper:#ffffff; --ink:#171717; --ink2:#525252; --ink3:#a3a3a3;
+  --line:#e5e5e5; --box:#f5f5f5; --box2:#ebebeb;
+  --primary:#72e3ad; --primary-fg:#1e2723; --accent:#0e8a57;
+  --note:#fff3b8; --note-ink:#5a4a00; --radius:8px; --shadow:0 1px 2px rgba(0,0,0,.05);
+  --sans:"Outfit",ui-sans-serif,system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121212; --paper:#171717; --ink:#ededed; --ink2:#a1a1a1; --ink3:#6b6b6b;
+  --line:#292929; --box:#1f1f1f; --box2:#2a2a2a;
+  --primary:#006239; --primary-fg:#e2f5ec; --accent:#3ecf8e;
+  --note:#3b3418; --note-ink:#f1e2a0; --shadow:none; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121212; --paper:#171717; --ink:#ededed; --ink2:#a1a1a1; --ink3:#6b6b6b;
+  --line:#292929; --box:#1f1f1f; --box2:#2a2a2a;
+  --primary:#006239; --primary-fg:#e2f5ec; --accent:#3ecf8e;
+  --note:#3b3418; --note-ink:#f1e2a0; --shadow:none; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+h1,h2,h3,h4{text-wrap:balance;margin:0;line-height:1.15}
+p{margin:0}
+a{color:inherit}
+code,.mono{font-family:var(--mono);font-size:.86em}
+
+/* ---- barra del wireframe (no forma parte de la web) ---- */
+.wf-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px dashed var(--line);
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding-block:12px;max-width:1180px;margin:0 auto}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wf-bar .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px}
+.tabs a{font-family:var(--mono);font-size:12.5px;text-decoration:none;padding:6px 10px;border:1px solid var(--line);border-radius:6px;color:var(--ink2);background:var(--paper)}
+.tabs a[aria-current="page"]{border-color:var(--ink);color:var(--ink);background:var(--box)}
+.tabs a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toggle{margin-left:auto;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.toggle input{accent-color:var(--accent)}
+
+main{max-width:1180px;margin:20px auto 0}
+.view{display:none}
+.view.on{display:block}
+
+/* ---- marco de navegador ---- */
+.browser{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.chrome{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--box)}
+.dots{display:flex;gap:5px}.dots i{width:9px;height:9px;border-radius:50%;background:var(--box2);border:1px solid var(--line)}
+.url{flex:1;min-width:0;font-family:var(--mono);font-size:12px;color:var(--ink2);background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:3px 10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* ---- nav del sitio ---- */
+.nav{display:flex;align-items:center;gap:18px;padding:14px 24px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px}
+.logo i{width:22px;height:22px;border-radius:6px;background:var(--primary);border:1px solid var(--accent);display:inline-block}
+.nav .links{display:flex;gap:16px;font-size:14px;color:var(--ink2);flex-wrap:wrap}
+.nav .links b{color:var(--ink);font-weight:600}
+.nav .right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-family:var(--sans);font-weight:500;font-size:12px;border:1px solid var(--line);border-radius:calc(var(--radius) - 2px);padding:2px 9px;color:var(--ink2);white-space:nowrap}
+.search{font-size:13px;color:var(--ink3);border:1px solid var(--line);border-radius:calc(var(--radius) - 2px);padding:5px 10px;min-width:170px;background:var(--box)}
+
+/* ---- bloques genéricos ---- */
+.sec{padding:56px 40px;border-bottom:1px solid var(--line);position:relative}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.h2{font-size:32px;font-weight:600;letter-spacing:-.02em;max-width:22ch}
+.h2 span{color:var(--ink3)}
+.lead{color:var(--ink2);max-width:62ch;margin-top:12px}
+.ph{background:repeating-linear-gradient(135deg,var(--box) 0 10px,var(--box2) 10px 20px);border:1px solid var(--line);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ink2);font-family:var(--mono);font-size:12px;padding:16px;min-height:120px}
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;font-weight:500;font-size:14px;padding:0 16px;border-radius:calc(var(--radius) - 2px);border:1px solid var(--line);background:var(--paper);color:var(--ink);text-decoration:none;box-shadow:var(--shadow)}
+.btn.pri{background:var(--primary);border-color:var(--accent);color:var(--primary-fg)}
+.is-disabled{opacity:.5;pointer-events:none;cursor:not-allowed}
+.soon{font-family:var(--sans);font-size:10.5px;font-weight:600;border:1px solid var(--line);border-radius:5px;padding:0 5px;margin-left:6px;color:var(--ink2);background:var(--box)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{border:1px solid var(--line);border-radius:var(--radius);padding:20px;min-width:0;background:var(--paper);box-shadow:var(--shadow)}
+.card h4{font-size:15px;margin-bottom:6px}
+.card p{color:var(--ink2);font-size:14px}
+.lines{display:grid;gap:7px}.lines i{display:block;height:8px;border-radius:4px;background:var(--box2)}
+.lines i:nth-child(3n){width:70%}.lines i:nth-child(4n){width:85%}
+.code{font-family:var(--mono);font-size:12.5px;background:var(--box);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;white-space:pre;line-height:1.6;color:var(--ink)}
+.code .c{color:var(--ink3)}.code .k{color:var(--accent)}
+
+/* ---- notas de diseño ---- */
+.note{background:var(--note);color:var(--note-ink);font-family:var(--mono);font-size:11.5px;line-height:1.5;border-radius:4px;padding:8px 10px;max-width:300px;
+  box-shadow:0 1px 0 rgba(0,0,0,.08)}
+.note b{display:block;font-weight:600;margin-bottom:2px}
+.note.abs{position:absolute;top:16px;right:16px}
+.nonotes .note{display:none}
+
+/* ---- hero ---- */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:40px;align-items:center;padding:72px 40px 56px}
+.hero h1{font-size:56px;font-weight:600;letter-spacing:-.03em}
+.hero h1 span{display:block;color:var(--ink3)}
+.install{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:13px;background:var(--box);border:1px solid var(--line);border-radius:8px;padding:10px 14px;max-width:100%;overflow-x:auto}
+.install em{font-style:normal;color:var(--ink3)}
+.stats{display:flex;gap:28px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.stats b{display:block;font-family:var(--sans);font-size:20px;color:var(--ink)}
+
+.vs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.vs>div{padding:14px 16px;min-width:0}
+.vs>div+div{border-left:1px solid var(--line)}
+.vs .t{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:8px}
+.vs .t.ok{color:var(--accent)}
+
+.steps{counter-reset:s;display:grid;gap:12px}
+.steps li{list-style:none;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px}
+.steps li::before{counter-increment:s;content:counter(s);font-family:var(--mono);font-size:12px;width:24px;height:24px;border-radius:50%;border:1px solid var(--ink);display:grid;place-items:center}
+.steps{padding:0;margin:0}
+
+.chapters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.chapters div{border:1px solid var(--line);border-radius:8px;padding:12px;font-size:13.5px;min-width:0}
+.chapters small{display:block;font-family:var(--mono);font-size:11px;color:var(--ink3)}
+
+.quote{font-size:24px;line-height:1.35;font-weight:500;max-width:34ch;border-left:3px solid var(--accent);padding-left:18px}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-weight:500}
+.tw{overflow-x:auto}
+
+.foot{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:24px;padding:36px 40px;font-size:13.5px;color:var(--ink2)}
+.foot h5{margin:0 0 8px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-weight:500}
+.foot ul{list-style:none;padding:0;margin:0;display:grid;gap:5px}
+
+.loop{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px}
+.loop span{border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--paper)}
+.loop span.acc{border-color:var(--accent);color:var(--accent)}
+.loop i{font-style:normal;color:var(--ink3)}
+.pieces{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pieces div{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:2px;min-width:0;background:var(--paper)}
+.pieces b{font-size:14px}
+.pieces span{font-size:12.5px;color:var(--ink2)}
+@media (max-width:560px){.pieces{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.foot-s{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;padding:24px 40px;font-size:13.5px;color:var(--ink2)}
+/* ---- docs ---- */
+.docs{display:grid;grid-template-columns:230px minmax(0,1fr) 190px;min-height:640px}
+.side{border-right:1px solid var(--line);padding:20px 16px;font-size:13.5px}
+.side h6{margin:16px 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-weight:500}
+.side h6:first-child{margin-top:0}
+.side ul{list-style:none;padding:0;margin:0;display:grid;gap:3px}
+.side li{padding:3px 8px;border-radius:5px;color:var(--ink2)}
+.side li.cur{background:var(--box);color:var(--ink);font-weight:600;border-left:2px solid var(--accent)}
+.doc{padding:32px 40px;min-width:0;display:grid;gap:18px;align-content:start;position:relative}
+.doc h1{font-size:32px}
+.crumb{font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
+.callout{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;padding:12px 14px;font-size:14px;color:var(--ink2)}
+.sig{font-family:var(--mono);font-size:12.5px;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.sig div{padding:8px 12px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:140px minmax(0,1fr) ;gap:10px}
+.sig div:last-child{border-bottom:0}
+.sig div:first-child{background:var(--box);color:var(--ink3);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.pn{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pn div{border:1px solid var(--line);border-radius:8px;padding:12px;font-size:13px}
+.pn small{display:block;color:var(--ink3);font-family:var(--mono);font-size:11px}
+.toc{border-left:1px solid var(--line);padding:24px 16px;font-size:12.5px;color:var(--ink2);display:grid;gap:6px;align-content:start}
+
+/* ---- tutorial ---- */
+.tut{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:640px}
+.prog{border-right:1px solid var(--line);padding:20px 16px;display:grid;gap:4px;align-content:start;font-size:13.5px}
+.prog .bar{height:6px;border-radius:3px;background:var(--box2);margin:6px 0 14px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:36%;background:var(--primary)}
+.prog div.s{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;padding:5px 6px;border-radius:5px;color:var(--ink2)}
+.prog div.s span{font-family:var(--mono);font-size:11px;width:20px;height:20px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center}
+.prog div.done span{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.prog div.cur{background:var(--box);color:var(--ink);font-weight:600}
+.prog div.cur span{border-color:var(--accent);color:var(--accent)}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.check{border:1px dashed var(--ink3);border-radius:8px;padding:14px;display:grid;gap:8px;font-size:14px}
+.check label{display:flex;gap:8px;align-items:flex-start}
+
+/* ---- manifiesto ---- */
+.mani{max-width:720px;margin:0 auto;padding:64px 24px;display:grid;gap:22px;position:relative}
+.mani .date{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+.mani h1{font-size:42px;letter-spacing:-.02em}
+.mani p.body{font-size:17px;line-height:1.7;color:var(--ink)}
+.theses{counter-reset:t;display:grid;gap:14px;padding:0;margin:0}
+.theses li{list-style:none;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;font-size:16.5px;line-height:1.55}
+.theses li::before{counter-increment:t;content:counter(t,upper-roman) ".";font-family:var(--mono);font-size:13px;color:var(--accent);padding-top:3px;text-align:right}
+.theses li b{font-weight:600}
+.sign{border-top:1px solid var(--line);padding-top:20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:end}
+.sign .hand{font-size:22px;font-style:italic}
+
+/* ---- mapa ---- */
+.map{display:grid;gap:22px}
+.tree{font-family:var(--mono);font-size:13px;line-height:1.75;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:18px 20px;overflow-x:auto;white-space:pre}
+.tree .a{color:var(--accent)}.tree .d{color:var(--ink3)}
+
+@media (max-width:900px){
+  .hero,.split,.g2{grid-template-columns:minmax(0,1fr)}
+  .g3,.g4,.chapters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .docs{grid-template-columns:minmax(0,1fr)}
+  .side,.toc{display:none}
+  .tut{grid-template-columns:minmax(0,1fr)}
+  .prog{border-right:0;border-bottom:1px solid var(--line)}
+  .foot{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .note.abs{position:static;margin-bottom:12px}
+}
+@media (max-width:560px){
+  .sec,.hero{padding:36px 18px}
+  .hero h1{font-size:34px}
+  .g3,.g4,.chapters,.vs{grid-template-columns:minmax(0,1fr)}
+  .vs>div+div{border-left:0;border-top:1px solid var(--line)}
+  .doc{padding:24px 18px}
+  .nav{padding:12px 16px}
+  .nav .links{display:none}
+  .foot{grid-template-columns:minmax(0,1fr);padding:28px 18px}
+  .sig div{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="wf-bar">
+  <span class="lbl">Wireframe · cocido web</span>
+  <nav class="tabs" aria-label="Vistas">
+    <a href="#home">Landing</a>
+    <a href="#docs">Docs</a>
+    <a href="#tutorial">Tutorial</a>
+    <a href="#manifiesto">Manifiesto</a>
+  </nav>
+  <label class="toggle"><input type="checkbox" id="notes" checked> notas</label>
+  <label class="toggle" style="margin-left:0"><input type="checkbox" id="lang"> EN</label>
+</header>
+
+<main id="main">
+
+<!-- ================= LANDING ================= -->
+<section class="view" id="v-home">
+<div class="browser">
+  <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url" data-es="cocido.dev/es/" data-en="cocido.dev/">cocido.dev/es/</div></div>
+
+  <div class="nav">
+    <div class="logo"><i></i>cocido</div>
+    <div class="links"><b data-es="Guía" data-en="Guide">Guía</b><span data-es="Manifiesto" data-en="Manifesto">Manifiesto</span><span>Changelog</span></div>
+    <div class="right"><span class="search" data-es="Buscar  ⌘K" data-en="Search  ⌘K">Buscar  ⌘K</span><span class="pill">ES / EN</span><span class="pill" title="Claro / oscuro">◐</span><span class="pill is-disabled" aria-disabled="true">GitHub</span></div>
+  </div>
+
+  <!-- 1 PORTADA -->
+  <div class="hero sec" style="grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;padding-block:88px 72px">
+    <div style="display:grid;gap:22px;justify-items:center;min-width:0;max-width:760px">
+      <div class="eyebrow" data-es="Framework de backend para Bun" data-en="A backend framework for Bun">Framework de backend para Bun</div>
+      <h1><span style="display:inline;color:inherit" data-es="Lo escribe la IA." data-en="AI writes it.">Lo escribe la IA.</span><span data-es="Lo controlas tú." data-en="You control it.">Lo controlas tú.</span></h1>
+      <p class="lead" style="margin:0" data-es="Una estructura que los agentes no se saltan, y cada cambio revisado por su forma, no por sus líneas." data-en="A structure agents can't skip, and every change reviewed by its shape, not its lines.">Una estructura que los agentes no se saltan, y cada cambio revisado por su forma, no por sus líneas.</p>
+      <div class="row" style="justify-content:center">
+        <a class="btn pri" href="#docs" data-es="Empezar →" data-en="Get started →">Empezar →</a>
+        <a class="btn" href="#manifiesto" data-es="Leer el manifiesto" data-en="Read the manifesto">Leer el manifiesto</a>
+      </div>
+      <div class="install"><em>$</em> bun create @renacuajo my-app <em style="margin-left:auto;padding-left:16px">⧉</em></div>
+      <div class="note"><b>Teaser</b>"@renacuajo" es un nombre provisional para no desvelar el paquete real. GitHub, editar página, código del capítulo y firmar: deshabilitados hasta el lanzamiento.</div>
+      <div class="note"><b>Portada mínima</b>Titular corto, una frase y dos enlaces. "Empezar" lleva al getting started de la guía, y desde ahí al tutorial.</div>
+    </div>
+  </div>
+
+  <!-- 2 EL CONTRASTE (pantalla completa para ilustración) -->
+  <div class="sec" style="padding-block:72px">
+    <div class="note abs"><b>Pantalla de ilustración</b>Una sola idea a pantalla completa. Aquí va la ilustración grande: el muro de diff frente al mapa limpio. Ejemplo ilustrativo, no cifras reales.</div>
+    <div class="eyebrow" data-es="El problema" data-en="The problem">El problema</div>
+    <h2 class="h2" data-es="Generar código ya no cuesta. Revisarlo, sí." data-en="Writing code is cheap now. Reviewing it isn't.">Generar código ya no cuesta. Revisarlo, sí.</h2>
+    <div class="vs" style="margin-top:28px">
+      <div><div class="t" data-es="Lo que te llega" data-en="What you get">Lo que te llega</div><div class="ph" style="min-height:420px">[ Ilustración: muro de diff infinito ]<br><br>PR #212 · +3.184 −412 · 47 archivos</div></div>
+      <div><div class="t ok" data-es="Lo que revisas con cocido" data-en="What you review with cocido">Lo que revisas con cocido</div><div class="ph" style="min-height:420px">[ Ilustración: el mapa de cocido review ]<br><br>boards/card.setDueDate ✓<br>notifications ⚠ no planificado<br>auth ✗ falta</div></div>
+    </div>
+  </div>
+
+  <!-- 3 LA CADENA -->
+  <div class="sec">
+    <div class="note abs"><b>Sección "dolor"</b>Cadena causal: cada eslabón empuja al siguiente.</div>
+    <div class="eyebrow" data-es="Así se pierde el control" data-en="How control is lost">Así se pierde el control</div>
+    <h2 class="h2" data-es="Nadie lee una tarde por cada PR." data-en="Nobody spends an afternoon on every PR.">Nadie lee una tarde por cada PR.</h2>
+    <div class="grid g4" style="margin-top:28px">
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px">1</div><h4 data-es="Volumen" data-en="Volume">Volumen</h4><p data-es="Cada PR trae miles de líneas plausibles. Compilan, pasan los tests, parecen bien." data-en="Every PR brings thousands of plausible lines. They compile, pass tests, look fine.">Cada PR trae miles de líneas plausibles. Compilan, pasan los tests, parecen bien.</p></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px">2</div><h4 data-es="Revisión en diagonal" data-en="Skimmed reviews">Revisión en diagonal</h4><p data-es="Revisas línea a línea… hasta que no. Apruebas lo que no has leído." data-en="You review line by line… until you don't. You approve what you haven't read.">Revisas línea a línea… hasta que no. Apruebas lo que no has leído.</p></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px">3</div><h4 data-es="Erosión silenciosa" data-en="Silent erosion">Erosión silenciosa</h4><p data-es="Un módulo escribe en la tabla de otro. Un evento se publica fuera de la transacción. Nadie lo vio." data-en="A module writes another's table. An event is published outside the transaction. Nobody saw it.">Un módulo escribe en la tabla de otro. Un evento se publica fuera de la transacción. Nadie lo vio.</p></div>
+      <div class="card" style="border-color:var(--accent)"><div class="eyebrow" style="margin-bottom:6px;color:var(--accent)">4</div><h4 data-es="Descontrol" data-en="Loss of control">Descontrol</h4><p data-es="Ya nadie, ni tú ni el agente, sabe qué hace el sistema ni por qué." data-en="Nobody, neither you nor the agent, knows what the system does or why.">Ya nadie, ni tú ni el agente, sabe qué hace el sistema ni por qué.</p></div>
+    </div>
+  </div>
+
+  <!-- 4 LA RESPUESTA -->
+  <div class="sec">
+    <div class="eyebrow" data-es="La respuesta" data-en="The answer">La respuesta</div>
+    <h2 class="h2" data-es="Revisa la forma, no las líneas." data-en="Review the shape, not the lines.">Revisa la forma, no las líneas.</h2>
+    <p class="lead" data-es="Cuatro piezas, una por cada momento de un cambio: plan, framework, review y monitor." data-en="Four pieces, one for each moment of a change: plan, framework, review and monitor.">Cuatro piezas, una por cada momento de un cambio: plan, framework, review y monitor.</p>
+    <div class="grid g4" style="margin-top:24px">
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px" data-es="Plan · antes de escribir" data-en="Plan · before writing">Plan · antes de escribir</div><h4><code>cocido map --plan</code></h4><p data-es="El agente propone un plan por pasos. Se comprueba contra el código y las reglas antes de escribir nada." data-en="The agent proposes a plan in steps. It is checked against the code and the rules before anything is written.">El agente propone un plan por pasos. Se comprueba contra el código y las reglas antes de escribir nada.</p></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px" data-es="Framework · mientras se escribe" data-en="Framework · while writing">Framework · mientras se escribe</div><h4 data-es="cocido: DDD opinionado, con baterías" data-en="cocido: opinionated DDD, batteries included">cocido: DDD opinionado, con baterías</h4><p data-es="Una sola forma de hacer cada cosa, y la lint la hace cumplir: un agente no cruza una frontera sin que falle el build." data-en="One way to do each thing, and the lint enforces it: an agent can't cross a boundary without the build failing.">Una sola forma de hacer cada cosa, y la lint la hace cumplir: un agente no cruza una frontera sin que falle el build.</p></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px" data-es="Review · antes de mergear" data-en="Review · before merging">Review · antes de mergear</div><h4><code>cocido review</code></h4><p data-es="La rama, dibujada contra su plan: hecho, falta, distinto o no planificado. Revisas eso." data-en="The branch, drawn against its plan: done, missing, different or not planned. That is what you review.">La rama, dibujada contra su plan: hecho, falta, distinto o no planificado. Revisas eso.</p></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px" data-es="Monitor · en producción" data-en="Monitor · in production">Monitor · en producción</div><h4>cocido-monitor</h4><p data-es="Ve lo que de verdad ejecuta y cierra el ciclo: lo que detecta vuelve al agente como una corrección a planificar." data-en="Sees what really runs and closes the loop: what it detects goes back to the agent as a fix to plan.">Ve lo que de verdad ejecuta y cierra el ciclo: lo que detecta vuelve al agente como una corrección a planificar.</p></div>
+    </div>
+    <div class="loop" style="margin-top:20px">
+      <span>Plan</span><i>→</i><span>Framework</span><i>→</i><span>Review</span><i>→</i><span>Monitor</span><i>↺</i><span class="acc" data-es="Corrección → Plan" data-en="Fix → Plan">Corrección → Plan</span>
+    </div>
+    <div class="ph" style="min-height:170px;margin-top:12px">[ Demo AgentTerminal: el agente planifica → escribe → la lint lo frena → corrige → cocido review en verde ]</div>
+  </div>
+
+  <!-- 5 EL MODELO -->
+  <div class="sec">
+    <div class="grid g2" style="align-items:center;gap:40px">
+      <div style="min-width:0">
+        <div class="eyebrow" data-es="El modelo" data-en="The model">El modelo</div>
+        <h2 class="h2" data-es="Fronteras que aguantan." data-en="Boundaries that hold.">Fronteras que aguantan.</h2>
+        <p class="lead" data-es="Domain-Driven Design al estilo de Eric Evans y Vaughn Vernon, hecho código: contextos delimitados, agregados, casos de uso y eventos de dominio." data-en="Domain-Driven Design in the style of Eric Evans and Vaughn Vernon, made code: bounded contexts, aggregates, use cases and domain events.">Domain-Driven Design al estilo de Eric Evans y Vaughn Vernon, hecho código: contextos delimitados, agregados, casos de uso y eventos de dominio.</p>
+        <p style="margin-top:18px;font-size:14px;color:var(--ink2)" data-es="Contextos con su propia base de datos, y módulos dueños de una entidad. Dentro de cada módulo, siempre las mismas piezas:" data-en="Contexts with their own database, and modules that own one entity. Inside every module, always the same pieces:">Contextos con su propia base de datos, y módulos dueños de una entidad. Dentro de cada módulo, siempre las mismas piezas:</p>
+        <div class="pieces" style="margin-top:12px">
+          <div><b data-es="Caso de uso" data-en="Use case">Caso de uso</b><span data-es="lo que se puede pedir" data-en="what can be asked">lo que se puede pedir</span></div>
+          <div><b data-es="Entidad" data-en="Entity">Entidad</b><span data-es="sabe qué cambió" data-en="knows what changed">sabe qué cambió</span></div>
+          <div><b data-es="Evento" data-en="Event">Evento</b><span data-es="sale por outbox, nunca se pierde" data-en="leaves by outbox, never lost">sale por outbox, nunca se pierde</span></div>
+          <div><b data-es="Repositorio" data-en="Repository">Repositorio</b><span data-es="escribe solo lo que cambió" data-en="writes only what changed">escribe solo lo que cambió</span></div>
+          <div><b>Worker</b><span data-es="reacciona a eventos de otros" data-en="reacts to others' events">reacciona a eventos de otros</span></div>
+          <div><b>Scheduler</b><span data-es="lo que pasa a su hora" data-en="what runs on time">lo que pasa a su hora</span></div>
+        </div>
+      </div>
+      <div style="display:grid;gap:10px;min-width:0">
+        <div class="ph" style="min-height:280px">[ Diagrama interactivo ContextMap:<br>auth · boards · backoffice<br>hover en un módulo = resalta lo que lee y escucha ]</div>
+        <div class="note"><b>Interacción</b>Un único momento animado en toda la landing: este. El resto, estático.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 MONITOR -->
+  <div class="sec">
+    <div class="note abs"><b>Solo calentar</b>Sin botón de instalación todavía: capturas y un aviso de "próximamente".</div>
+    <div class="row" style="gap:10px"><div class="eyebrow" style="margin:0">cocido-monitor</div><span class="pill" style="border-color:var(--accent);color:var(--accent)" data-es="Próximamente" data-en="Coming soon">Próximamente</span></div>
+    <h2 class="h2" style="margin-top:10px" data-es="Tu aplicación en producción, con sus propias palabras." data-en="Your application in production, in its own words.">Tu aplicación en producción, con sus propias palabras.</h2>
+    <p class="lead" data-es="Contextos, casos de uso, eventos, colas y trazas hasta la última consulta. Y lo que encuentra vuelve al agente como una corrección." data-en="Contexts, use cases, events, queues and traces down to the last query. And what it finds goes back to the agent as a fix.">Contextos, casos de uso, eventos, colas y trazas hasta la última consulta. Y lo que encuentra vuelve al agente como una corrección.</p>
+    <div class="row" style="margin-top:22px;gap:6px"><span class="pill" style="border-color:var(--ink);color:var(--ink)">Overview</span><span class="pill">Traces</span><span class="pill">Queues</span><span class="pill">Events</span><span class="pill">Structure</span><span class="pill">Versions</span></div>
+    <div class="ph" style="min-height:340px;margin-top:12px">[ Captura grande del monitor — cambia con las pestañas de arriba ]<br>(capturas ya existen en web/public/landing)</div>
+  </div>
+
+  <!-- 7 MANIFIESTO -->
+  <div class="sec" style="background:var(--box)">
+    <div class="grid g2" style="align-items:end;gap:32px">
+      <div style="min-width:0">
+        <div class="eyebrow" data-es="El manifiesto" data-en="The manifesto">El manifiesto</div>
+        <p class="quote" data-es="«Que la máquina escriba. Que la forma la decida una persona.»" data-en="“Let the machine write. Let a person decide the shape.”">«Que la máquina escriba. Que la forma la decida una persona.»</p>
+      </div>
+      <div style="display:grid;gap:12px;min-width:0">
+        <p style="color:var(--ink2)" data-es="Por qué todo sistema que escribe una IA tiene que poder supervisarse, sea un backend o no, y qué hace falta para conseguirlo." data-en="Why every system an AI writes must be supervisable, backend or not, and what it takes.">Por qué todo sistema que escribe una IA tiene que poder supervisarse, sea un backend o no, y qué hace falta para conseguirlo.</p>
+        <div><a class="btn" href="#manifiesto" data-es="Leer el manifiesto →" data-en="Read the manifesto →">Leer el manifiesto →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 CTA FINAL -->
+  <div class="sec" style="text-align:center;display:grid;gap:16px;justify-items:center">
+    <h2 class="h2" style="font-size:36px" data-es="Construye algo que dure." data-en="Build something that lasts.">Construye algo que dure.</h2>
+    <div class="install" style="width:max-content"><em>$</em> bun create @renacuajo my-app</div>
+    <div class="row" style="justify-content:center"><a class="btn pri" href="#docs" data-es="Empezar" data-en="Get started">Empezar</a><a class="btn" href="#manifiesto" data-es="Leer el manifiesto" data-en="Read the manifesto">Leer el manifiesto</a></div>
+  </div>
+
+  <div class="foot-s">
+    <div class="logo"><i></i>cocido</div>
+    <span data-es="Guía" data-en="Guide">Guía</span><span data-es="Manifiesto" data-en="Manifesto">Manifiesto</span><span>Changelog</span><span class="is-disabled" aria-disabled="true">GitHub</span>
+    <span style="margin-left:auto">MIT · Angel Romero</span>
+  </div>
+</div>
+</section>
+
+<!-- ================= DOCS ================= -->
+<section class="view" id="v-docs">
+<div class="browser">
+  <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url" data-es="cocido.dev/es/docs/core/repositorios" data-en="cocido.dev/docs/core/repositories">cocido.dev/es/docs/core/repositorios</div></div>
+  <div class="nav">
+    <div class="logo"><i></i>cocido</div>
+    <div class="links"><b data-es="Guía" data-en="Guide">Guía</b><span data-es="Manifiesto" data-en="Manifesto">Manifiesto</span><span>Changelog</span></div>
+    <div class="right"><span class="search" data-es="Buscar en la guía  ⌘K" data-en="Search the guide  ⌘K">Buscar en la guía  ⌘K</span><span class="pill">v0.x ▾</span><span class="pill">ES ▾</span><span class="pill" title="Claro / oscuro">◐</span></div>
+  </div>
+  <div class="docs">
+    <aside class="side">
+      <h6 data-es="Empezar" data-en="Start">Empezar</h6>
+      <ul><li data-es="Getting started" data-en="Getting started">Getting started</li><li data-es="Tutorial: construye cooper →" data-en="Tutorial: build cooper →">Tutorial: construye cooper →</li><li data-es="Instalación" data-en="Installation">Instalación</li><li data-es="Estructura de un proyecto" data-en="Project layout">Estructura de un proyecto</li></ul>
+      <h6 data-es="Conceptos" data-en="Concepts">Conceptos</h6>
+      <ul><li data-es="Contextos" data-en="Contexts">Contextos</li><li data-es="Módulos" data-en="Modules">Módulos</li><li data-es="Casos de uso" data-en="Use cases">Casos de uso</li><li data-es="Entidades" data-en="Entities">Entidades</li><li data-es="Eventos y outbox" data-en="Events and outbox">Eventos y outbox</li></ul>
+      <h6 data-es="Referencia" data-en="Reference">Referencia</h6>
+      <ul><li>cocido/core</li><li class="cur" data-es="Repositorios" data-en="Repositories">Repositorios</li><li>cocido/http</li><li>cocido/kysely</li><li data-es="Stores" data-en="Stores">Stores</li><li>CLI</li><li data-es="Reglas de lint" data-en="Lint rules">Reglas de lint</li></ul>
+      <h6>Monitor</h6>
+      <ul><li data-es="Instalar" data-en="Install">Instalar</li><li data-es="Producción" data-en="Production">Producción</li></ul>
+    </aside>
+    <article class="doc">
+      <div class="note abs"><b>Docs = Starlight + shadcn</b>Starlight da sidebar, búsqueda (Pagefind) e i18n de serie. Se tematiza con Tailwind y los mismos tokens shadcn/Supabase que la landing.</div>
+      <div class="crumb" data-es="Referencia / cocido/core" data-en="Reference / cocido/core">Referencia / cocido/core</div>
+      <h1 data-es="Repositorios" data-en="Repositories">Repositorios</h1>
+      <p class="lead" style="margin:0" data-es="Un repositorio guarda las entidades de un módulo, escribe solo lo que cambió y publica sus eventos en la misma transacción." data-en="A repository keeps a module's entities, writes only what changed and publishes their events in the same transaction.">Un repositorio guarda las entidades de un módulo, escribe solo lo que cambió y publica sus eventos en la misma transacción.</p>
+      <div class="code"><span class="k">import</span> { defineRepository } <span class="k">from</span> '@renacuajo/core'
+
+<span class="k">export const</span> cards = defineRepository(Card, { table: 'cards' })</div>
+      <h3 data-es="Firma" data-en="Signature">Firma</h3>
+      <div class="sig">
+        <div><span data-es="Método" data-en="Method">Método</span><span data-es="Devuelve" data-en="Returns">Devuelve</span></div>
+        <div><span>get(id)</span><span>Promise&lt;Card&gt;</span></div>
+        <div><span>find(criteria)</span><span>Promise&lt;Page&lt;Card&gt;&gt;</span></div>
+        <div><span>save(card)</span><span>Promise&lt;void&gt; · <span style="color:var(--ink3)" data-es="lanza ConcurrencyConflict" data-en="throws ConcurrencyConflict">lanza ConcurrencyConflict</span></span></div>
+      </div>
+      <div class="callout" data-es="Consejo · Un cambio deshecho no escribe nada ni publica nada." data-en="Tip · A change undone writes nothing and tells nothing.">Consejo · Un cambio deshecho no escribe nada ni publica nada.</div>
+      <div class="lines"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="row" style="font-size:12.5px;color:var(--ink3);font-family:var(--mono)"><span class="is-disabled" aria-disabled="true" data-es="✎ Editar esta página" data-en="✎ Edit this page">✎ Editar esta página</span><span>·</span><span data-es="Actualizado: 12 nov 2026" data-en="Updated: Nov 12, 2026">Actualizado: 12 nov 2026</span></div>
+      <div class="pn"><div><small data-es="← Anterior" data-en="← Previous">← Anterior</small>cocido/core</div><div style="text-align:right"><small data-es="Siguiente →" data-en="Next →">Siguiente →</small>cocido/http</div></div>
+    </article>
+    <aside class="toc">
+      <b style="font-size:11px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)" data-es="En esta página" data-en="On this page">En esta página</b>
+      <span style="color:var(--accent)" data-es="Firma" data-en="Signature">Firma</span><span data-es="Concurrencia" data-en="Concurrency">Concurrencia</span><span data-es="Borrado lógico" data-en="Soft delete">Borrado lógico</span><span data-es="Tests" data-en="Tests">Tests</span>
+    </aside>
+  </div>
+</div>
+</section>
+
+<!-- ================= TUTORIAL ================= -->
+<section class="view" id="v-tutorial">
+<div class="browser">
+  <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url" data-es="cocido.dev/es/tutorial/03-tarjetas-y-eventos" data-en="cocido.dev/tutorial/03-cards-and-events">cocido.dev/es/tutorial/03-tarjetas-y-eventos</div></div>
+  <div class="nav">
+    <div class="logo"><i></i>cocido</div>
+    <div class="links"><b data-es="Guía" data-en="Guide">Guía</b><span data-es="Manifiesto" data-en="Manifesto">Manifiesto</span><span>Changelog</span></div>
+    <div class="right"><span class="pill is-disabled" aria-disabled="true" data-es="Código del capítulo ↗" data-en="Chapter code ↗">Código del capítulo ↗</span><span class="pill">ES ▾</span><span class="pill" title="Claro / oscuro">◐</span></div>
+  </div>
+  <div class="tut">
+    <aside class="prog">
+      <b data-es="Construyendo cooper" data-en="Building cooper">Construyendo cooper</b>
+      <span style="font-size:12px;color:var(--ink3);font-family:var(--mono)" data-es="3 de 14 · ~4 h en total" data-en="3 of 14 · ~4 h total">3 de 14 · ~4 h en total</span>
+      <div class="bar"><i></i></div>
+      <div class="s done"><span>✓</span><span data-es="Crear el proyecto" data-en="Create the project">Crear el proyecto</span></div>
+      <div class="s done"><span>✓</span><span data-es="Tableros" data-en="Boards">Tableros</span></div>
+      <div class="s cur"><span>3</span><span data-es="Tarjetas y eventos" data-en="Cards and events">Tarjetas y eventos</span></div>
+      <div class="s"><span>4</span><span data-es="Workers y colas" data-en="Workers and queues">Workers y colas</span></div>
+      <div class="s"><span>5</span><span data-es="Autenticación (OAuth)" data-en="Authentication (OAuth)">Autenticación (OAuth)</span></div>
+      <div class="s"><span>6</span><span data-es="Frontend con cocido-react" data-en="Frontend with cocido-react">Frontend con cocido-react</span></div>
+      <div class="s"><span>…</span><span data-es="…" data-en="…">…</span></div>
+      <div class="s"><span>14</span><span data-es="Producción y monitor" data-en="Production and monitor">Producción y monitor</span></div>
+    </aside>
+    <article class="doc">
+      <div class="note abs"><b>Formato tutorial</b>Cada capítulo: objetivo → pasos con código → "lo que ves" → checkpoint. Cada capítulo = un tag en el repo de cooper.</div>
+      <div class="crumb" data-es="Capítulo 3 · 25 min" data-en="Chapter 3 · 25 min">Capítulo 3 · 25 min</div>
+      <h1 data-es="Tarjetas y eventos" data-en="Cards and events">Tarjetas y eventos</h1>
+      <div class="callout" data-es="Al acabar: un tablero acepta tarjetas, y crear una publica card.created sin perderla nunca." data-en="By the end: a board accepts cards, and creating one publishes card.created without ever losing it.">Al acabar: un tablero acepta tarjetas, y crear una publica card.created sin perderla nunca.</div>
+      <h3 data-es="1 · Añade el módulo" data-en="1 · Add the module">1 · Añade el módulo</h3>
+      <div class="code"><span class="c">$</span> bunx cocido add module apps/backend/src/contexts/boards card</div>
+      <h3 data-es="2 · Escribe el caso de uso" data-en="2 · Write the use case">2 · Escribe el caso de uso</h3>
+      <div class="split">
+        <div class="code"><span class="k">export const</span> createCard = useCase(<span class="k">async</span> (input) =&gt; {
+  <span class="k">const</span> card = Card.create(input)
+  <span class="k">await</span> cards.save(card)
+  <span class="k">return</span> card
+})</div>
+        <div class="ph" style="min-height:0" data-es="[ Lo que ves: la traza en cocido-monitor ]" data-en="[ What you see: the trace in cocido-monitor ]">[ Lo que ves: la traza en cocido-monitor ]</div>
+      </div>
+      <div class="lines"><i></i><i></i><i></i></div>
+      <div class="check">
+        <b data-es="Checkpoint" data-en="Checkpoint">Checkpoint</b>
+        <label><input type="checkbox" id="c1"> <span><code>bun test</code> <span data-es="pasa" data-en="passes">pasa</span></span></label>
+        <label><input type="checkbox" id="c2"> <span data-es="La lint no protesta" data-en="The lint is quiet">La lint no protesta</span></label>
+        <label><input type="checkbox" id="c3"> <span data-es="Ves card.created en el monitor" data-en="You see card.created in the monitor">Ves card.created en el monitor</span></label>
+      </div>
+      <div class="pn"><div><small data-es="← Capítulo 2" data-en="← Chapter 2">← Capítulo 2</small><span data-es="Tableros" data-en="Boards">Tableros</span></div><div style="text-align:right"><small data-es="Capítulo 4 →" data-en="Chapter 4 →">Capítulo 4 →</small><span data-es="Workers y colas" data-en="Workers and queues">Workers y colas</span></div></div>
+    </article>
+  </div>
+</div>
+</section>
+
+<!-- ================= MANIFIESTO ================= -->
+<section class="view" id="v-manifiesto">
+<div class="browser">
+  <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url" data-es="cocido.dev/es/manifiesto" data-en="cocido.dev/manifesto">cocido.dev/es/manifiesto</div></div>
+  <div class="nav">
+    <div class="logo"><i></i>cocido</div>
+    <div class="links"><span data-es="Guía" data-en="Guide">Guía</span><b data-es="Manifiesto" data-en="Manifesto">Manifiesto</b><span>Changelog</span></div>
+    <div class="right"><span class="pill">ES ▾</span><span class="pill" title="Claro / oscuro">◐</span></div>
+  </div>
+  <article class="mani">
+    <div class="note" style="justify-self:end"><b>Tono carta</b>Sin sidebar ni ruido: una columna, tipografía grande, fecha y firma. Tesis numeradas en romanos (guiño a las 95 tesis). Texto provisional.</div>
+    <div class="date" data-es="Madrid, 12 de noviembre de 2026" data-en="Madrid, November 12, 2026">Madrid, 12 de noviembre de 2026</div>
+    <h1 data-es="Sobre el control del software que ya no escribimos a mano" data-en="On keeping control of software we no longer write by hand">Sobre el control del software que ya no escribimos a mano</h1>
+    <p class="body" data-es="A quien construya con agentes: escribir código ha dejado de ser el cuello de botella. Ahora lo es entenderlo. Este texto explica qué creemos que hace falta para no perder el control, y cocido es la consecuencia." data-en="To whoever builds with agents: writing code is no longer the bottleneck. Understanding it is. This text says what we think it takes to keep control, and cocido is the consequence.">A quien construya con agentes: escribir código ha dejado de ser el cuello de botella. Ahora lo es entenderlo. Este texto explica qué creemos que hace falta para no perder el control, y cocido es la consecuencia.</p>
+    <ol class="theses">
+      <li><span><b data-es="Lo que no se puede revisar, no se controla." data-en="What cannot be reviewed is not under control.">Lo que no se puede revisar, no se controla.</b> <span data-es="Aprobar sin leer es delegar sin saberlo." data-en="Approving unread is delegating without knowing it.">Aprobar sin leer es delegar sin saberlo.</span></span></li>
+      <li><span><b data-es="Se revisa la forma, no las líneas." data-en="Review the shape, not the lines.">Se revisa la forma, no las líneas.</b> <span data-es="Las líneas las escribe la máquina; la forma la decide una persona." data-en="The machine writes the lines; a person decides the shape.">Las líneas las escribe la máquina; la forma la decide una persona.</span></span></li>
+      <li><span><b data-es="El plan va antes que el código." data-en="The plan comes before the code.">El plan va antes que el código.</b> <span data-es="Y el código se contrasta con el plan, no con la intuición del revisor." data-en="And the code is held against the plan, not the reviewer's hunch.">Y el código se contrasta con el plan, no con la intuición del revisor.</span></span></li>
+      <li><span><b data-es="Las fronteras se escriben en el código, no en un wiki." data-en="Boundaries are written in code, not in a wiki.">Las fronteras se escriben en el código, no en un wiki.</b> <span data-es="Un agente no lee el wiki. La lint, sí la cumple." data-en="An agent doesn't read the wiki. It does obey the lint.">Un agente no lee el wiki. La lint, sí la cumple.</span></span></li>
+      <li><span><b data-es="Producción habla el idioma del dominio." data-en="Production speaks the domain's language.">Producción habla el idioma del dominio.</b> <span data-es="Si no sabes qué hace en producción, no sabes qué escribiste." data-en="If you don't know what it does in production, you don't know what you wrote.">Si no sabes qué hace en producción, no sabes qué escribiste.</span></span></li>
+      <li><span style="color:var(--ink3)" data-es="… hasta XII" data-en="… up to XII">… hasta XII</span></li>
+    </ol>
+    <p class="body" style="color:var(--ink2)" data-es="Lo que cocido no será: un generador de código, un framework para todo, una caja de magia que no puedas leer." data-en="What cocido will not be: a code generator, a framework for everything, a magic box you can't read.">Lo que cocido no será: un generador de código, un framework para todo, una caja de magia que no puedas leer.</p>
+    <div class="sign">
+      <div><div class="hand">— Angel Romero</div><span style="font-family:var(--mono);font-size:12px;color:var(--ink3)" data-es="y quien quiera firmar debajo" data-en="and whoever wants to sign below">y quien quiera firmar debajo</span></div>
+      <div class="row"><span class="btn is-disabled" aria-disabled="true" data-es="Firmar en GitHub" data-en="Sign on GitHub">Firmar en GitHub</span><a class="btn pri" href="#tutorial" data-es="Empezar a construir →" data-en="Start building →">Empezar a construir →</a></div>
+    </div>
+  </article>
+</div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var views=['home','docs','tutorial','manifiesto'];
+  function show(){
+    var h=(location.hash||'#home').slice(1); if(views.indexOf(h)<0) h='home';
+    views.forEach(function(v){document.getElementById('v-'+v).classList.toggle('on',v===h)});
+    document.querySelectorAll('.tabs a').forEach(function(a){a.toggleAttribute('aria-current',a.getAttribute('href')==='#'+h); if(a.getAttribute('href')==='#'+h)a.setAttribute('aria-current','page')});
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('hashchange',show); show();
+  var notes=document.getElementById('notes');
+  notes.addEventListener('change',function(){document.body.classList.toggle('nonotes',!notes.checked)});
+  var lang=document.getElementById('lang');
+  lang.addEventListener('change',function(){
+    var k=lang.checked?'en':'es';
+    document.documentElement.lang=k;
+    document.querySelectorAll('[data-es]').forEach(function(el){var t=el.getAttribute('data-'+k); if(t!=null) el.textContent=t});
+  });
+})();
+</script>

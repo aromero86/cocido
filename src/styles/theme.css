@@ -1,0 +1,190 @@
+/* cocido's theme, as shadcn/ui tokens (it began as tweakcn's Supabase theme, now gruvbox).
+   Dark mode follows [data-theme="dark"] on <html>, the attribute Starlight sets too, so the
+   landing and the docs share one theme switch. */
+
+/* gruvbox, as the logotype's papers: in light, warm paper inked with its dark tones; in dark, its wood.
+   Green is cocido's own colour; orange (--pop) is what stands out. Corners are nearly square, like cut paper. */
+:root {
+  --background: #fbf8ef;
+  --foreground: #282828;
+  --card: #fffdf7;
+  --card-foreground: #282828;
+  --popover: #fffdf7;
+  --popover-foreground: #3c3836;
+  --primary: #427b58;
+  --primary-foreground: #fbf1c7;
+  --secondary: #f2ecdc;
+  --secondary-foreground: #3c3836;
+  --muted: #f2ecdc;
+  --muted-foreground: #665c54;
+  --accent: #ebe3cf;
+  --accent-foreground: #282828;
+  --destructive: #cc241d;
+  --destructive-foreground: #fbf1c7;
+  --border: #e3dac5;
+  --input: #ebe3cf;
+  --ring: #689d6a;
+  --chart-1: #427b58;
+  --chart-2: #458588;
+  --chart-3: #b16286;
+  --chart-4: #d79921;
+  --chart-5: #689d6a;
+  --radius: 0.25rem;
+  --sidebar: #fbf8ef;
+  --sidebar-foreground: #665c54;
+  --sidebar-primary: #427b58;
+  --sidebar-primary-foreground: #fbf1c7;
+  --sidebar-accent: #ebe3cf;
+  --sidebar-accent-foreground: #282828;
+  --sidebar-border: #e3dac5;
+  --sidebar-ring: #689d6a;
+  --shadow-color: #3c3836;
+  --shadow-opacity: 0.16;
+  --shadow-blur: 3px;
+  --shadow-spread: 0px;
+  --shadow-offset-x: 0px;
+  --shadow-offset-y: 1px;
+  --letter-spacing: 0em;
+  --spacing: 0.25rem;
+  --shadow-2xs: 0px 1px 2px 0px rgb(60 56 54 / 0.08);
+  --shadow-xs: 0px 1px 2px 0px rgb(60 56 54 / 0.1);
+  --shadow-sm: 0px 1px 0px 0px rgb(60 56 54 / 0.14), 0px 1px 3px 0px rgb(60 56 54 / 0.08);
+  --shadow: 0px 1px 0px 0px rgb(60 56 54 / 0.14), 0px 2px 4px 0px rgb(60 56 54 / 0.08);
+  --shadow-md: 0px 2px 0px 0px rgb(60 56 54 / 0.12), 0px 4px 8px -2px rgb(60 56 54 / 0.12);
+  --shadow-lg: 0px 2px 0px 0px rgb(60 56 54 / 0.12), 0px 8px 16px -4px rgb(60 56 54 / 0.16);
+  --shadow-xl: 0px 2px 0px 0px rgb(60 56 54 / 0.12), 0px 16px 28px -8px rgb(60 56 54 / 0.2);
+  --shadow-2xl: 0px 3px 0px 0px rgb(60 56 54 / 0.14), 0px 24px 48px -12px rgb(60 56 54 / 0.3);
+  --tracking-normal: 0em;
+}
+
+[data-theme="dark"] {
+  --background: #1d2021;
+  --foreground: #ebdbb2;
+  --card: #282828;
+  --card-foreground: #ebdbb2;
+  --popover: #32302f;
+  --popover-foreground: #d5c4a1;
+  --primary: #427b58;
+  --primary-foreground: #fbf1c7;
+  --secondary: #32302f;
+  --secondary-foreground: #ebdbb2;
+  --muted: #282828;
+  --muted-foreground: #a89984;
+  --accent: #3c3836;
+  --accent-foreground: #ebdbb2;
+  --destructive: #cc241d;
+  --destructive-foreground: #fbf1c7;
+  --border: #3c3836;
+  --input: #32302f;
+  --ring: #8ec07c;
+  --chart-1: #8ec07c;
+  --chart-2: #83a598;
+  --chart-3: #d3869b;
+  --chart-4: #fabd2f;
+  --chart-5: #689d6a;
+  --radius: 0.25rem;
+  --sidebar: #1d2021;
+  --sidebar-foreground: #a89984;
+  --sidebar-primary: #427b58;
+  --sidebar-primary-foreground: #fbf1c7;
+  --sidebar-accent: #3c3836;
+  --sidebar-accent-foreground: #ebdbb2;
+  --sidebar-border: #3c3836;
+  --sidebar-ring: #8ec07c;
+  --shadow-color: #000000;
+  --shadow-opacity: 0.16;
+  --shadow-blur: 3px;
+  --shadow-spread: 0px;
+  --shadow-offset-x: 0px;
+  --shadow-offset-y: 1px;
+  --letter-spacing: 0em;
+  --spacing: 0.25rem;
+  --shadow-2xs: 0px 1px 2px 0px rgb(0 0 0 / 0.08);
+  --shadow-xs: 0px 1px 2px 0px rgb(0 0 0 / 0.1);
+  --shadow-sm: 0px 1px 0px 0px rgb(0 0 0 / 0.14), 0px 1px 3px 0px rgb(0 0 0 / 0.08);
+  --shadow: 0px 1px 0px 0px rgb(0 0 0 / 0.14), 0px 2px 4px 0px rgb(0 0 0 / 0.08);
+  --shadow-md: 0px 2px 0px 0px rgb(0 0 0 / 0.12), 0px 4px 8px -2px rgb(0 0 0 / 0.12);
+  --shadow-lg: 0px 2px 0px 0px rgb(0 0 0 / 0.12), 0px 8px 16px -4px rgb(0 0 0 / 0.16);
+  --shadow-xl: 0px 2px 0px 0px rgb(0 0 0 / 0.12), 0px 16px 28px -8px rgb(0 0 0 / 0.2);
+  --shadow-2xl: 0px 3px 0px 0px rgb(0 0 0 / 0.14), 0px 24px 48px -12px rgb(0 0 0 / 0.3);
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: Poppins, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, Menlo, monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+  --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+}
+
+/* Green for text and lines; orange for what stands out. */
+:root {
+  --brand: #427b58;
+  --pop: #af3a03;
+}
+[data-theme="dark"] {
+  --brand: #8ec07c;
+  --pop: #fe8019;
+}
+@theme inline {
+  --color-brand: var(--brand);
+  --color-pop: var(--pop);
+}
+
+/* The few named colours the landing uses (the diff, the map), as gruvbox's. */
+@theme {
+  --color-red-400: #fb4934;
+  --color-red-500: #cc241d;
+  --color-red-600: #9d0006;
+  --color-emerald-400: #b8bb26;
+  --color-emerald-500: #98971a;
+  --color-emerald-600: #79740e;
+  --color-sky-300: #83a598;
+  --color-sky-500: #458588;
+  --color-sky-700: #076678;
+  --color-amber-500: #d79921;
+}

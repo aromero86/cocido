@@ -1,0 +1,21 @@
+---
+import { Moon, Sun } from 'lucide-react'
+import { buttonVariants } from '@/components/ui/button'
+
+interface Props { label: string }
+const { label } = Astro.props
+---
+<button type="button" data-theme-toggle class={buttonVariants({ variant: 'ghost', size: 'icon' })} aria-label={label} title={label}>
+  <Sun className="hidden dark:block" />
+  <Moon className="block dark:hidden" />
+</button>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')) {
+    button.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
+      document.documentElement.dataset.theme = next
+      try { localStorage.setItem('starlight-theme', next) } catch {}
+    })
+  }
+</script>

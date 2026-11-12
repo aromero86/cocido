@@ -1,0 +1,17 @@
+---
+interface Props { eyebrow: string; title: string; rest?: string; lead?: string; center?: boolean; paper?: string }
+const { eyebrow, title, rest, lead, center = false, paper = '0' } = Astro.props
+---
+<!-- Stacked; on wide screens, unless centred, the title on the left and the lead beside it, so the section fits its screen. -->
+<div class:list={[
+  'flex flex-col gap-4',
+  center ? 'items-center text-center' : 'lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-x-14',
+]}>
+  <div class:list={['flex flex-col gap-4', center && 'items-center']}>
+    <p class:list={['cut-label', eyebrow.startsWith('@') && 'as-code']} data-paper={paper}>{eyebrow}</p>
+    <h2 class="max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">
+      {title}{rest && <span class="text-muted-foreground"> {rest}</span>}
+    </h2>
+  </div>
+  {lead && <p class:list={['max-w-2xl text-lg text-muted-foreground', !center && 'lg:pb-1']}>{lead}</p>}
+</div>

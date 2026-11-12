@@ -1,0 +1,90 @@
+/* The guide and the tutorial: Starlight, coloured with the same shadcn tokens as the landing. */
+@layer base, starlight, theme, components, utilities;
+
+@import "@astrojs/starlight-tailwind";
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+@import "@fontsource-variable/jetbrains-mono";
+@import "./theme.css";
+
+:root,
+:root[data-theme="light"],
+[data-theme="dark"] {
+  --sl-font: Poppins, ui-sans-serif, system-ui, sans-serif;
+  --sl-font-mono: "JetBrains Mono Variable", ui-monospace, Menlo, monospace;
+
+  --sl-color-bg: var(--background);
+  --sl-color-bg-nav: var(--background);
+  --sl-color-bg-sidebar: var(--sidebar);
+  --sl-color-bg-inline-code: var(--muted);
+  --sl-color-bg-accent: var(--primary);
+  --sl-color-hairline: var(--border);
+  --sl-color-hairline-light: var(--border);
+  --sl-color-hairline-shade: var(--border);
+
+  --sl-color-white: var(--foreground);
+  --sl-color-black: var(--background);
+  --sl-color-gray-1: color-mix(in srgb, var(--foreground) 92%, var(--background));
+  --sl-color-gray-2: color-mix(in srgb, var(--foreground) 80%, var(--background));
+  --sl-color-gray-3: color-mix(in srgb, var(--foreground) 62%, var(--background));
+  --sl-color-gray-4: color-mix(in srgb, var(--foreground) 45%, var(--background));
+  --sl-color-gray-5: color-mix(in srgb, var(--foreground) 22%, var(--background));
+  --sl-color-gray-6: var(--muted);
+  --sl-color-gray-7: color-mix(in srgb, var(--muted) 50%, var(--background));
+
+  --sl-color-text: var(--foreground);
+  --sl-color-text-accent: var(--ring);
+  --sl-color-text-invert: var(--primary-foreground);
+  --sl-color-accent: var(--primary);
+  --sl-color-accent-low: color-mix(in srgb, var(--primary) 18%, var(--background));
+  --sl-color-accent-high: color-mix(in srgb, var(--primary) 55%, var(--foreground));
+}
+
+/* Links and the current page in gruvbox's green: the deep one on paper, the light one on wood. */
+:root[data-theme="light"] {
+  --sl-color-text-accent: #427b58;
+}
+[data-theme="dark"] {
+  --sl-color-text-accent: #8ec07c;
+}
+
+.sl-markdown-content a[aria-disabled="true"],
+.disabled-link {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Notes and tips in the brand's green, not Starlight's blue and purple. */
+:root,
+:root[data-theme="light"],
+[data-theme="dark"] {
+  --sl-color-blue-low: color-mix(in srgb, var(--primary) 14%, var(--background));
+  --sl-color-blue: var(--brand);
+  --sl-color-blue-high: var(--foreground);
+  --sl-color-purple-low: color-mix(in srgb, var(--primary) 14%, var(--background));
+  --sl-color-purple: var(--brand);
+  --sl-color-purple-high: var(--foreground);
+}
+
+/* The current page in the sidebar reads like a shadcn primary button. */
+.sidebar-content a[aria-current="page"],
+.sidebar-content a[aria-current="page"]:hover,
+.sidebar-content a[aria-current="page"]:focus {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: calc(var(--radius) - 2px);
+}
+
+.site-title {
+  color: var(--sl-color-white);
+  gap: 0.5rem;
+}
+
+.sl-markdown-content :is(h1, h2, h3) {
+  letter-spacing: -0.02em;
+}

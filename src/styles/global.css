@@ -1,0 +1,104 @@
+/* The landing and the manifesto: Tailwind whole, with the shadcn tokens of theme.css. */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+@import "@fontsource-variable/jetbrains-mono";
+@import "./theme.css";
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: light;
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    letter-spacing: var(--tracking-normal);
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+}
+
+/* Paper: a faint grain over the whole page, as under the logotype's cut-outs. */
+body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .45 0 0 0 0 .4 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+}
+
+/*
+ * A label cut out of one of the logotype's papers, turned a little: the eyebrows of the sections.
+ * `data-paper` picks the paper, as the logotype's letters (0-5), or red and orange.
+ */
+.cut-label {
+  --paper: #427b58;
+  --ink: #fbf1c7;
+  display: inline-block;
+  width: max-content;
+  padding: 0.45em 0.7em 0.38em;
+  font-family: 'Rubik Mono One', ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 2px 0 rgb(0 0 0 / 0.18);
+  rotate: var(--turn, -2deg);
+}
+/* A package name keeps its case, in the code typeface: the logotype's mono has capitals only. */
+.cut-label.as-code { text-transform: none; letter-spacing: 0; font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+.cut-label[data-paper='1'] { --paper: #fbf1c7; --ink: #427b58; outline: 1px solid #d5c4a1; --turn: 1.5deg; }
+.cut-label[data-paper='2'] { --paper: #8ec07c; --ink: #1d2021; --turn: -1deg; }
+.cut-label[data-paper='3'] { --paper: #79740e; --ink: #fbf1c7; --turn: 2deg; }
+.cut-label[data-paper='4'] { --paper: #b8bb26; --ink: #1d2021; --turn: -2.5deg; }
+.cut-label[data-paper='5'] { --paper: #689d6a; --ink: #fbf1c7; --turn: 1deg; }
+.cut-label[data-paper='red'] { --paper: #cc241d; --ink: #fbf1c7; --turn: -1.5deg; }
+.cut-label[data-paper='orange'] { --paper: #d65d0e; --ink: #fbf1c7; --turn: 2deg; }
+
+/* A piece of tape holding a note to the page. */
+.taped { position: relative; }
+.taped::before {
+  content: '';
+  position: absolute;
+  top: -0.55rem;
+  left: 50%;
+  width: 4.5rem;
+  height: 1.1rem;
+  translate: -50% 0;
+  rotate: -3deg;
+  background: rgb(213 196 161 / 0.55);
+  box-shadow: 0 1px 1px rgb(0 0 0 / 0.08);
+}
+[data-theme='dark'] .taped::before { background: rgb(213 196 161 / 0.3); }
+
+/*
+ * On wide screens each section of the landing takes at least the screen under the header, its
+ * content centred in it: one idea per screen. On phones they keep their own height.
+ */
+@media (min-width: 1024px) {
+  .screen {
+    min-height: calc(100svh - var(--cocido-header, 3.5rem));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* Centring in a column would shrink the containers to their content: they keep their width. */
+  .screen > :not(.absolute) { width: 100%; }
+  /*
+   * Magnets: scrolling tends to settle on a section's top, under the header, never between two.
+   * Proximity, not mandatory: a section taller than the screen still scrolls freely through.
+   * The hero is sticky (its letters fly while it holds still), so its wrapper is what snaps.
+   */
+  html:has(.screen) { scroll-snap-type: y proximity; scroll-padding-top: var(--cocido-header, 3.5rem); }
+  .screen:not(.sticky), .snap { scroll-snap-align: start; }
+  /* A screen shared by two sections: the first at the top, the second filling the rest. */
+  .screen.stack { justify-content: flex-start; }
+  .screen.stack > :last-child { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+}

@@ -1,0 +1,39 @@
+---
+import { ArrowRight } from 'lucide-react'
+import { buttonVariants } from '@/components/ui/button'
+import { landing, routes, type Lang } from '@/i18n/landing'
+import HeroLogo from './HeroLogo.astro'
+
+interface Props { lang: Lang }
+const { lang } = Astro.props
+const t = landing[lang].hero
+---
+<!-- The hero holds still while the logotype flies into the header (HeroLogo's runway), then scrolls away. -->
+<div class="snap">
+<section class="screen sticky top-[var(--cocido-header,3.5rem)] overflow-hidden border-b bg-background">
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,black,transparent)] opacity-80"></div>
+  <!-- Squared paper under the logotype. -->
+
+  <!-- Everything in it grows with the screen, its height first: on a big one it fills it, never a small block in the middle. -->
+  <div class="relative mx-auto flex max-w-6xl flex-col items-center gap-[clamp(1.75rem,3.6svh,3rem)] lg:max-w-[min(94vw,92rem)] px-4 pb-24 pt-14 text-center sm:px-6 sm:pt-16 lg:py-[6svh]">
+    <HeroLogo />
+    <!-- What matters most, taped over the logotype's foot: it is not out yet, still on the stove. -->
+    <span class="taped relative -mt-4 inline-flex -rotate-[2deg] items-center gap-2.5 bg-[#fbf1c7] px-4 py-1.5 text-xs font-medium text-[#3c3836] shadow-md lg:px-5 lg:py-2 lg:text-sm">
+      <span class="relative flex size-2">
+        <span class="absolute inline-flex size-full animate-ping rounded-full bg-[#d65d0e] opacity-70 motion-reduce:hidden"></span>
+        <span class="relative inline-flex size-2 rounded-full bg-[#d65d0e]"></span>
+      </span>
+      {t.soon}
+    </span>
+    <h1 class="text-[clamp(2.4rem,min(5.2vw,7.6svh),6rem)] font-semibold leading-[1.04] tracking-tighter">
+      {t.title}<br /><span class="text-muted-foreground">{t.titleRest}</span>
+    </h1>
+    <p class="max-w-[38em] text-pretty text-[clamp(1rem,min(1.5vw,2.3svh),1.45rem)] text-muted-foreground">{t.lead}</p>
+    <div class="flex flex-wrap justify-center gap-3">
+      <a href={routes.guide[lang]} class={buttonVariants({ size: 'lg', className: 'lg:h-12 lg:px-7 lg:text-base' })}>{t.start} <ArrowRight /></a>
+      <a href={routes.principles[lang]} class={buttonVariants({ variant: 'outline', size: 'lg', className: 'lg:h-12 lg:px-7 lg:text-base' })}>{t.manifesto}</a>
+    </div>
+  </div>
+</section>
+<div style="height:var(--cocido-runway, 0px)"></div>
+</div>

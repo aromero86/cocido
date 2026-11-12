@@ -1,0 +1,32 @@
+---
+import Base from '@/layouts/Base.astro'
+import { landing, routes, type Lang } from '@/i18n/landing'
+import Hero from './Hero.astro'
+import Problem from './Problem.astro'
+import Answer from './Answer.astro'
+import Plan from './Plan.astro'
+import Blocks from './Blocks.astro'
+import Review from './Review.astro'
+import Model from './Model.astro'
+import ManifestoTeaser from './ManifestoTeaser.astro'
+import End from './End.astro'
+
+interface Props { lang: Lang }
+const { lang } = Astro.props
+const t = landing[lang]
+const other: Lang = lang === 'en' ? 'es' : 'en'
+---
+<Base lang={lang} title={t.meta.title} description={t.meta.description} alternate={routes.home[other]}>
+  <Hero lang={lang} />
+  <Problem lang={lang} />
+  <Answer lang={lang} />
+  <Plan lang={lang} />
+  <Blocks lang={lang} />
+  <Review lang={lang} />
+  <Model lang={lang} />
+  <!-- The principles and the last call share the last screen. -->
+  <div class="screen stack">
+    <ManifestoTeaser lang={lang} />
+    <End lang={lang} />
+  </div>
+</Base>

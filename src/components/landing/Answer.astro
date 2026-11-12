@@ -1,0 +1,155 @@
+---
+import { PACKAGE } from '@/config/site'
+import { landing, type Lang } from '@/i18n/landing'
+import SectionHeading from './SectionHeading.astro'
+import ToolIcon from './ToolIcon'
+
+interface Props { lang: Lang }
+const { lang } = Astro.props
+const t = landing[lang].answer
+---
+<section class="screen relative overflow-hidden border-b">
+  <div class="mx-auto flex max-w-6xl flex-col items-center gap-14 px-4 py-28 sm:px-6 lg:gap-10 lg:py-12">
+    <SectionHeading eyebrow={t.eyebrow} title={t.title} lead={t.lead} center paper="0" />
+
+    <div class="tools relative w-full" data-tools>
+      <!-- The loop, drawn from where the icons really are: three arcs forward, and the way back below. -->
+      <svg class="pointer-events-none absolute inset-0 hidden size-full overflow-visible lg:block" aria-hidden="true" data-loop></svg>
+
+      <ol class="relative grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12 lg:pb-32">
+        {t.items.map((item, index) => (
+          <li class:list={['tool flex flex-col items-center gap-3 text-center', (index === 0 || index === t.items.length - 1) && 'lg:mt-16']} style={`--i:${index}`}>
+            <div class="tool-icon relative flex size-[4.5rem] items-center justify-center rounded-2xl border bg-card text-muted-foreground shadow-sm" data-icon>
+              <ToolIcon client:visible index={index} />
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <h3 class="text-xl font-semibold tracking-tight">{item.name}</h3>
+              <code class="font-mono text-xs text-brand">{item.tool.replaceAll('%PKG%', PACKAGE)}</code>
+            </div>
+            <p class="max-w-56 text-sm text-muted-foreground" data-text>{item.text}</p>
+          </li>
+        ))}
+      </ol>
+
+      <p class="mt-2 flex items-center justify-center gap-2 text-center font-mono text-xs text-muted-foreground lg:absolute lg:inset-x-0 lg:bottom-[3.25rem] lg:mt-0">
+        <span class="text-brand lg:hidden">↺</span>{t.loopBack}
+      </p>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  /* One beat per tool: each lights up in turn, two seconds apiece, and the way back closes the loop. */
+  /* Each tile a cut-out, turned its own way. */
+  .tools .tool-icon { rotate: var(--turn); animation: tool-beat 8s ease-in-out infinite; animation-delay: calc(var(--i) * 2s); }
+  .tools .tool:nth-child(1) .tool-icon { --turn: -4deg; }
+  .tools .tool:nth-child(2) .tool-icon { --turn: 3deg; }
+  .tools .tool:nth-child(3) .tool-icon { --turn: -2deg; }
+  .tools .tool:nth-child(4) .tool-icon { --turn: 4deg; }
+  @keyframes tool-beat {
+    0%, 26%, 100% { border-color: var(--border); color: var(--muted-foreground); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); background: var(--card); }
+    6%, 20% { border-color: var(--brand); color: var(--brand); box-shadow: 0 3px 0 color-mix(in srgb, var(--brand) 55%, black), 0 0 28px color-mix(in srgb, var(--brand) 30%, transparent); background: color-mix(in srgb, var(--brand) 12%, var(--card)); }
+  }
+
+  .tools [data-loop] .arc { fill: none; stroke: color-mix(in srgb, var(--foreground) 28%, transparent); stroke-width: 1.5; stroke-dasharray: 4 5; animation: tool-flow 1s linear infinite; }
+  .tools [data-loop] .arc.back { stroke: color-mix(in srgb, var(--brand) 60%, transparent); }
+  .tools [data-loop] .head { fill: color-mix(in srgb, var(--foreground) 40%, transparent); }
+  .tools [data-loop] .head.back { fill: var(--brand); }
+  .tools [data-loop] .pulse { fill: var(--brand); }
+
+  @keyframes tool-flow { to { stroke-dashoffset: -14; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tools .tool-icon, .tools [data-loop] .arc { animation: none; }
+    .tools [data-loop] .pulse { display: none; }
+  }
+</style>
+
+<script>
+  const BEAT = 2 // seconds per tool
+  const CYCLE = 8 // seconds for the four
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-tools]')) {
+    const svg = root.querySelector<SVGSVGElement>('[data-loop]')!
+    const icons = [...root.querySelectorAll<HTMLElement>('[data-icon]')]
+    const texts = [...root.querySelectorAll<HTMLElement>('[data-text]')]
+
+    /** A filled arrowhead whose tip is at (x, y), pointing from (fx, fy). */
+    const head = (x: number, y: number, fx: number, fy: number, cls: string) => {
+      const angle = Math.atan2(y - fy, x - fx)
+      const len = 10
+      const half = 5
+      const bx = x - len * Math.cos(angle)
+      const by = y - len * Math.sin(angle)
+      const px = -Math.sin(angle) * half
+      const py = Math.cos(angle) * half
+      return `<path class="${cls}" d="M${x},${y} L${bx + px},${by + py} L${bx - px},${by - py} Z"/>`
+    }
+
+    /** A dot that travels a path only between two moments of the cycle, and hides the rest of it. */
+    const pulse = (id: string, from: number, to: number) => {
+      const a = from / CYCLE
+      const b = to / CYCLE
+      return `<circle r="4" class="pulse" opacity="0">
+        <animateMotion dur="${CYCLE}s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;${a};${b};1"><mpath href="#${id}"/></animateMotion>
+        <animate attributeName="opacity" dur="${CYCLE}s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;${a};${b}"/>
+      </circle>`
+    }
+
+    const draw = () => {
+      if (getComputedStyle(svg).display === 'none') return
+      const box = root.getBoundingClientRect()
+      const at = icons.map((icon) => {
+        const r = icon.getBoundingClientRect()
+        return { left: r.left - box.left, right: r.right - box.left, top: r.top - box.top, cy: r.top - box.top + r.height / 2, cx: r.left - box.left + r.width / 2 }
+      })
+      const bottom = Math.max(...texts.map((text) => text.getBoundingClientRect().bottom - box.top))
+      let out = ''
+
+      // Forward: an arc over the gap, from one icon to the next.
+      for (let i = 0; i < at.length - 1; i++) {
+        const a = at[i]
+        const b = at[i + 1]
+        const x1 = a.right + 10
+        const x2 = b.left - 10
+        // Part of one big arch: rising out of plan, level over the top, falling into monitor.
+        const y1 = a.cy
+        const y2 = b.cy
+        const top = Math.min(y1, y2) - 18
+        const c1x = x1 + (x2 - x1) * 0.35
+        const c2x = x2 - (x2 - x1) * 0.35
+        const c1y = y1 <= y2 ? top : y1 - (y1 - top) * 0.9
+        const c2y = y2 <= y1 ? top : y2 - (y2 - top) * 0.9
+        // The wire stops at the base of its arrowhead, which points along the curve's last stretch.
+        const angle = Math.atan2(y2 - c2y, x2 - c2x)
+        const endX = x2 - 10 * Math.cos(angle)
+        const endY = y2 - 10 * Math.sin(angle)
+        out += `<path id="loop-${i}" class="arc" d="M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${endX},${endY}"/>`
+        out += head(x2, y2, c2x, c2y, 'head')
+        out += pulse(`loop-${i}`, i * BEAT + 1.2, i * BEAT + BEAT)
+      }
+
+      // Back: down from monitor, below everything, and up into plan.
+      const first = at[0]
+      const last = at[at.length - 1]
+      const start = bottom + 16
+      const depth = 72
+      const bend = 56
+      // Straight down out of monitor, round at both ends, straight up into plan.
+      const back = [
+        `M${last.cx},${start}`,
+        `C${last.cx},${start + depth} ${last.cx - bend},${start + depth} ${last.cx - bend * 1.6},${start + depth}`,
+        `L${first.cx + bend * 1.6},${start + depth}`,
+        `C${first.cx + bend},${start + depth} ${first.cx},${start + depth} ${first.cx},${start + 12}`,
+      ].join(' ')
+      out += `<path id="loop-back" class="arc back" d="${back}"/>`
+      out += head(first.cx, start + 2, first.cx, start + 20, 'head back')
+      out += pulse('loop-back', CYCLE - BEAT + 1.0, CYCLE - 0.05)
+
+      svg.innerHTML = out
+    }
+
+    new ResizeObserver(draw).observe(root)
+    draw()
+  }
+</script>

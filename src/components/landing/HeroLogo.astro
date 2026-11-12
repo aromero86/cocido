@@ -1,0 +1,138 @@
+---
+/**
+ * The landing opens on the logotype, its cut-outs slapped down one after another. Scrolling sends each
+ * cut-out flying on its own, with a hop and a spin, into the header, where the header's own logotype takes
+ * over once they land. The flight takes three times the scroll its distance would: the hero holds still
+ * (--cocido-runway, two of them) while the cut-outs fly, and only then scrolls away. As they leave, the room
+ * the logotype took closes up and the rest of the hero rises into it: nothing is kept for it once it is gone.
+ * Brought from the old guide's landing.
+ */
+import Logo from './Logo.astro'
+
+const letters = [0, 1, 2, 3, 4, 5]
+---
+<div class="hero-logo" data-hero-logo>
+  <div class="place" data-place><Logo /></div>
+  <div class="flight" aria-hidden="true" data-flight>
+    {letters.map((index) => (
+      <div class="flying" data-flying>
+        <div class="pop" style={`--i:${index}`}><Logo only={index} /></div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style is:global>
+  .hero-logo .place .cocido-logo, .flight .flying .cocido-logo { font-size: clamp(44px, min(8.5vw, 12.5svh), 136px); }
+  .hero-logo .place { display: block; width: max-content; }
+  /* Until the script takes it, the flight is not there and the logotype stands in its place. */
+  .flight { display: none; }
+  .cocido-morph .flight { display: block; }
+  .cocido-morph .hero-logo .place { visibility: hidden; }
+  .flight .flying { position: fixed; top: 0; left: 0; z-index: 60; display: grid; place-items: center; pointer-events: none; will-change: transform; }
+
+  /* Each cut-out is slapped down in turn: it falls big and turned, overshoots, and settles. */
+  .flight .pop { animation: cocido-slap .6s cubic-bezier(.2, 1.5, .4, 1) both; animation-delay: calc(.15s + var(--i) * .11s); }
+  @keyframes cocido-slap {
+    0% { opacity: 0; transform: translateY(-.6em) rotate(calc(-25deg + var(--i) * 12deg)) scale(2.2); }
+    55% { opacity: 1; }
+    100% { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flight .pop { animation: none; } }
+
+  /* The header's logotype hides while the cut-outs fly, and takes over once they land. Its slot is not kept
+     empty meanwhile: it opens as they arrive (the script sets its width), pushing the links aside. */
+  .cocido-morph:not(.cocido-landed) [data-nav-logo] { display: block; overflow: hidden; opacity: 0; }
+  [data-nav-logo] .cocido-logo { width: max-content; }
+  .cocido-landed .flight { visibility: hidden; }
+</style>
+
+<script>
+  /** How far each cut-out spins on its way, and how late it leaves after the one before. */
+  const spins = [-32, 38, -46, 26, -36, 30]
+  const STAGGER = 0.08
+  /** How many times its distance the flight takes to scroll. */
+  const SLOWDOWN = 3
+  const lerp = (from: number, to: number, t: number) => from + (to - from) * t
+  const clamp = (value: number) => Math.min(1, Math.max(0, value))
+  const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
+
+  const root = document.querySelector<HTMLElement>('[data-hero-logo]')
+  const target = document.querySelector<HTMLElement>('[data-nav-logo] .cocido-logo')
+  if (root && target) {
+    const html = document.documentElement
+    const logo = root.querySelector<HTMLElement>('[data-place] .cocido-logo')!
+    const flight = root.querySelector<HTMLElement>('[data-flight]')!
+    // Out of the hero, which is sticky and so its own stacking context: over the header too.
+    document.body.append(flight)
+    const cuts = [...flight.querySelectorAll<HTMLElement>('[data-flying]')]
+    const last = STAGGER * (cuts.length - 1)
+    let runway = 0
+    let frame = 0
+
+    const header = target.closest('header')
+    const slot = target.closest<HTMLElement>('[data-nav-logo]')!
+    const draw = () => {
+      frame = 0
+      // The hero sticks right under the header, one row on wide screens and two on phones.
+      if (header) html.style.setProperty('--cocido-header', `${header.offsetHeight}px`)
+      const scroll = window.scrollY
+      const start = logo.getBoundingClientRect()
+      const end = target.getBoundingClientRect()
+      const k = end.width / start.width
+      // Where the logotype stood before any scroll: the hero holds still for the runway, then scrolls.
+      const top = start.top + Math.max(0, scroll - runway)
+      const distance = Math.max(1, top - end.top)
+      if (Math.abs(runway - distance * (SLOWDOWN - 1)) > 1) {
+        runway = distance * (SLOWDOWN - 1)
+        html.style.setProperty('--cocido-runway', `${runway}px`)
+      }
+      const t = clamp(scroll / (distance * SLOWDOWN))
+      html.classList.toggle('cocido-landed', t >= 1)
+      // The room it took closes as it flies: its own height and the gap after it, eased like the flight.
+      const gap = parseFloat(getComputedStyle(root.parentElement!).rowGap) || 0
+      root.style.marginBottom = `${-(root.offsetHeight + gap) * ease(t)}px`
+      // And the header's slot opens as they come: nothing, then the logotype's width and the gap after it.
+      if (t >= 1) {
+        slot.style.width = ''
+        slot.style.marginRight = ''
+      } else {
+        const open = ease(t)
+        const after = parseFloat(getComputedStyle(slot.parentElement!).columnGap) || 0
+        slot.style.width = `${target.offsetWidth * open}px`
+        slot.style.marginRight = `${-after * (1 - open)}px`
+      }
+      logo.querySelectorAll<HTMLElement>('.cut').forEach((cut, index) => {
+        const flying = cuts[index]
+        if (!flying) return
+        const w = cut.offsetWidth
+        const h = cut.offsetHeight
+        const local = clamp((t - index * STAGGER) / (1 - last))
+        const e = ease(local)
+        const fromX = start.left + cut.offsetLeft + w / 2
+        const toX = end.left + (cut.offsetLeft + w / 2) * k
+        const fromY = top + cut.offsetTop + h / 2
+        const toY = end.top + (cut.offsetTop + h / 2) * k
+        const nowY = start.top + cut.offsetTop + h / 2
+        const scale = lerp(1, k, e)
+        // A hop the size of the cut-out as it is now, never out of the top of the window.
+        const hop = Math.sin(Math.PI * local) * h * scale * (index % 2 ? 0.9 : 0.55)
+        const x = lerp(fromX, toX, e)
+        const y = Math.max(h * scale * 0.7, Math.min(Math.max(toY, nowY), lerp(fromY, toY, e)) - hop)
+        const spin = Math.sin(Math.PI * local) * spins[index]
+        flying.style.width = `${w}px`
+        flying.style.height = `${h}px`
+        flying.style.transform = `translate(${x - w / 2}px, ${y - h / 2}px) rotate(${spin}deg) scale(${scale})`
+      })
+    }
+    const schedule = () => { frame ||= requestAnimationFrame(draw) }
+
+    html.classList.add('cocido-morph')
+    draw()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    // The fonts change the cut-outs' sizes once they load.
+    document.fonts?.ready.then(schedule)
+    requestAnimationFrame(draw)
+  }
+</script>

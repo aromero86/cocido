@@ -1,0 +1,67 @@
+---
+import { PACKAGE } from '@/config/site'
+import { landing, type Lang } from '@/i18n/landing'
+import SectionHeading from './SectionHeading.astro'
+import StoryMap from './StoryMap.astro'
+
+interface Props { lang: Lang }
+const { lang } = Astro.props
+const t = landing[lang].plan
+
+/** A step's text, its pieces (`{card.setDueDate}`) as code. */
+const parts = (text: string) => text.split(/(\{[^}]+\})/).filter(Boolean).map((part) => (
+  part.startsWith('{') ? { code: part.slice(1, -1) } : { text: part }
+))
+---
+<section class="screen border-b bg-muted/30">
+  <div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-24 sm:px-6 lg:gap-8 lg:py-12">
+    <SectionHeading eyebrow={t.eyebrow.replace('%PKG%', PACKAGE)} title={t.title} rest={t.rest} lead={t.lead} paper="5" />
+
+    <!-- The story's plan: drawn on the map, and told in steps that light up with it. -->
+    <figure class="plan overflow-hidden rounded-xl border bg-card shadow-lg">
+      <header class="flex items-center gap-3 border-b bg-muted/40 px-4 py-2.5">
+        <span class="flex gap-1.5" aria-hidden="true"><i class="size-2.5 rounded-full bg-border"></i><i class="size-2.5 rounded-full bg-border"></i><i class="size-2.5 rounded-full bg-border"></i></span>
+        <span class="truncate font-mono text-xs text-muted-foreground">{t.file}</span>
+      </header>
+      <div class="grid gap-8 p-5 sm:p-7 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center">
+        <StoryMap lang={lang} mode="plan" />
+        <div class="flex flex-col gap-5">
+          <h3 class="text-xl font-semibold tracking-tight">{t.story}</h3>
+          <div class="flex flex-col gap-3">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{t.stepsTitle}</p>
+            <ol class="flex flex-col gap-3">
+              {t.steps.map((step, index) => (
+                <li class="plan-step flex gap-3" style={`--i:${index}`}>
+                  <span class="flex size-6 shrink-0 items-center justify-center rounded-full border border-brand/60 font-mono text-[11px] text-brand">{index + 1}</span>
+                  <div class="flex flex-col gap-1">
+                    <p class="font-medium">{step.title}</p>
+                    <p class="text-sm leading-relaxed text-muted-foreground">
+                      {parts(step.text).map((part) => 'code' in part ? <code class="rounded bg-muted px-1 py-0.5 font-mono text-[12px] text-foreground">{part.code}</code> : part.text)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{t.rulesTitle}</p>
+            <ul class="flex flex-col gap-1.5 text-sm text-muted-foreground">
+              {t.rules.map((rule) => <li class="flex gap-2"><span class="text-brand">✓</span>{rule}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <footer class="flex flex-wrap items-center gap-x-4 gap-y-1 border-t bg-muted/40 px-4 py-2.5 font-mono text-xs text-muted-foreground">
+        <span><span class="text-brand">$</span> cocido map --plan {t.file}</span>
+        <span class="ml-auto text-brand">✓ {t.checked}</span>
+      </footer>
+    </figure>
+  </div>
+</section>
+
+<style is:global>
+  /* Each step lights up with its part of the drawing. */
+  .plan .plan-step { animation: plan-step 8s ease-in-out infinite; animation-delay: calc(var(--i) * -4s); }
+  @keyframes plan-step { 0%, 46% { opacity: 1; } 54%, 96% { opacity: 0.45; } 100% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .plan .plan-step { animation: none; } }
+</style>

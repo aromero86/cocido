@@ -1,0 +1,236 @@
+---
+import type { LandingCopy } from '@/i18n/landing'
+
+interface Props { copy: LandingCopy['model']['map'] }
+const { copy } = Astro.props
+
+type Kind = 'ask' | 'listen'
+type Edge = { to: string; kind: Kind }
+
+/**
+ * cooper, cocido's example application, as its modules declare it: each `*.deps.ts` says whom a module
+ * may call, and each `*.workers.ts` whose events it listens to. A dependency only used for its events
+ * is a `listen`. Contexts are stacked from the one that depends to the one depended on.
+ */
+const contexts = ['backoffice', 'boards', 'auth'] as const
+const graph: Record<string, Edge[]> = {
+  'backoffice.job': [ask('backoffice.staff')],
+  'backoffice.metric': [ask('backoffice.staff'), listen('auth.tenant'), listen('auth.user'), listen('boards.card')],
+  'backoffice.staff': [ask('auth.user'), ask('auth.access')],
+  'backoffice.user': [ask('backoffice.staff'), ask('auth.user'), ask('auth.access'), ask('auth.tenant')],
+  'backoffice.workspace': [ask('backoffice.staff'), ask('auth.tenant'), ask('auth.access'), ask('auth.user'), ask('boards.board'), ask('boards.card')],
+  'boards.activity': [listen('boards.card'), ask('boards.member'), listen('auth.tenant')],
+  'boards.attachment': [ask('boards.card'), ask('boards.member'), listen('auth.tenant')],
+  'boards.board': [ask('boards.member')],
+  'boards.card': [ask('boards.board'), ask('boards.column'), ask('boards.member'), listen('auth.access')],
+  'boards.column': [ask('boards.board'), ask('boards.member')],
+  'boards.member': [ask('auth.access'), ask('auth.tenant'), ask('auth.user')],
+  'boards.workspace': [ask('boards.board'), ask('boards.column'), ask('boards.card'), ask('boards.member'), ask('auth.tenant'), ask('auth.access'), ask('auth.invitation'), ask('auth.user')],
+  'auth.access': [ask('auth.product')],
+  'auth.avatar': [],
+  'auth.invitation': [ask('auth.tenant'), ask('auth.access'), ask('auth.user')],
+  'auth.oauthClient': [ask('auth.product')],
+  'auth.oauthGrant': [ask('auth.oauthClient'), ask('auth.product'), ask('auth.access'), ask('auth.session')],
+  'auth.product': [],
+  'auth.session': [ask('auth.user'), ask('auth.product')],
+  'auth.tenant': [ask('auth.access')],
+  'auth.token': [ask('auth.oauthClient'), ask('auth.oauthGrant')],
+  'auth.user': [ask('auth.avatar')],
+}
+function ask(to: string): Edge { return { to, kind: 'ask' } }
+function listen(to: string): Edge { return { to, kind: 'listen' } }
+
+const contextOf = (id: string) => id.split('.')[0]
+const nameOf = (id: string) => id.split('.')[1]
+
+// Inside a context, a module stands left of the ones it depends on: its layer, counted from the bottom.
+const layers = new Map<string, number>()
+const layerOf = (id: string): number => {
+  if (!layers.has(id)) {
+    const inside = graph[id].filter((edge) => contextOf(edge.to) === contextOf(id))
+    layers.set(id, inside.length ? 1 + Math.max(...inside.map((edge) => layerOf(edge.to))) : 0)
+  }
+  return layers.get(id)!
+}
+const bands = contexts.map((context) => ({
+  context,
+  ids: Object.keys(graph)
+    .filter((id) => contextOf(id) === context)
+    .sort((x, y) => layerOf(y) - layerOf(x) || nameOf(x).localeCompare(nameOf(y))),
+}))
+---
+<figure class="flex min-w-0 flex-col gap-4 rounded-xl border bg-card p-4 shadow-sm sm:p-5" data-context-map data-graph={JSON.stringify(graph)}>
+  <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+    <span class="inline-flex items-center gap-1.5"><svg width="18" height="4" aria-hidden="true"><line x1="0" y1="2" x2="18" y2="2" class="stroke-brand" stroke-width="2" /></svg>{copy.asks}</span>
+    <span class="inline-flex items-center gap-1.5"><svg width="18" height="4" aria-hidden="true"><line x1="0" y1="2" x2="18" y2="2" class="stroke-brand" stroke-width="2" stroke-dasharray="4 3" /></svg>{copy.listens}</span>
+    <span class="inline-flex items-center gap-1.5"><svg width="18" height="4" aria-hidden="true"><line x1="0" y1="2" x2="18" y2="2" class="stroke-amber-500" stroke-width="2" /></svg>{copy.usedBy}</span>
+    <span class="ml-auto hidden sm:inline">{copy.hint}</span>
+  </div>
+
+  <div class="relative grid gap-10" data-board>
+    <svg class="pointer-events-none absolute inset-0 z-10 size-full overflow-visible" aria-hidden="true" data-wires></svg>
+    {bands.map(({ context, ids }) => (
+      <section class="flex flex-col gap-3 rounded-lg border bg-muted/40 px-3 pb-8 pt-2 md:flex-row md:items-center md:gap-4">
+        <header class="flex shrink-0 flex-col md:w-36">
+          <h3 class="font-mono text-[11px] font-medium uppercase tracking-wider text-foreground">{context}</h3>
+          <span class="text-xs text-muted-foreground">{copy.contexts[context]}</span>
+        </header>
+        <div class="flex flex-1 flex-wrap gap-x-2 gap-y-10 pt-7">
+          {ids.map((id) => (
+            <button
+              type="button"
+              data-module={id}
+              aria-pressed="false"
+              class="relative z-20 rounded-md border bg-background px-2.5 py-1 font-mono text-xs transition-[background-color,border-color,opacity,color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >{nameOf(id)}</button>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+
+  <figcaption class="flex min-h-10 flex-col gap-1 border-t pt-3 text-xs text-muted-foreground">
+    <span
+      class="font-mono text-foreground"
+      data-caption
+      data-asks={copy.asks}
+      data-listens={copy.listens}
+      data-used-by={copy.usedBy}
+      data-nothing={copy.nothing}
+    ></span>
+    <span>{copy.rule}</span>
+  </figcaption>
+</figure>
+
+<style is:global>
+  [data-wires] path { fill: none; stroke-width: 1.5; }
+  [data-wires] .down { stroke: var(--brand); }
+  [data-wires] .up { stroke: var(--color-amber-500); }
+  [data-wires] .listen { stroke-dasharray: 4 3; }
+  [data-wires] .head { stroke: none; stroke-dasharray: none; }
+  [data-wires] .head.down { fill: var(--brand); }
+  [data-wires] .head.up { fill: var(--color-amber-500); }
+</style>
+
+<script>
+  type Edge = { to: string; kind: 'ask' | 'listen' }
+  const states = {
+    selected: ['bg-primary', 'text-primary-foreground', 'border-primary'],
+    down: ['border-brand', 'ring-1', 'ring-brand'],
+    up: ['border-amber-500', 'ring-1', 'ring-amber-500'],
+    dim: ['opacity-35'],
+  }
+  const every = Object.values(states).flat()
+  const name = (id: string) => id.split('.')[1]
+
+  for (const map of document.querySelectorAll<HTMLElement>('[data-context-map]')) {
+    const graph = JSON.parse(map.dataset.graph ?? '{}') as Record<string, Edge[]>
+    const board = map.querySelector<HTMLElement>('[data-board]')!
+    const wires = map.querySelector<SVGSVGElement>('[data-wires]')!
+    const caption = map.querySelector<HTMLElement>('[data-caption]')!
+    const buttons = [...map.querySelectorAll<HTMLButtonElement>('[data-module]')]
+    const usedBy = (id: string) => Object.entries(graph).flatMap(([from, edges]) => edges.filter((edge) => edge.to === id).map((edge) => ({ from, kind: edge.kind })))
+    let selected = 'boards.card'
+
+    const draw = () => {
+      const box = board.getBoundingClientRect()
+      const at = new Map(buttons.map((button) => {
+        const r = button.getBoundingClientRect()
+        return [button.dataset.module!, { x: r.left - box.left + r.width / 2, width: r.width, top: r.top - box.top, bottom: r.bottom - box.top }]
+      }))
+      const H = 7 // the arrowhead's length
+      type Dir = 'up' | 'down'
+      /** A wire leaving (ax, ay) heading `leave` and arriving at (bx, by) heading `arrive`, always tangent to both. */
+      const curve = (ax: number, ay: number, leave: Dir, bx: number, by: number, arrive: Dir, cls: string) => {
+        const lift = Math.min(34, 16 + Math.abs(bx - ax) / 14)
+        const y = leave === arrive ? (ay + by) / 2 : leave === 'up' ? Math.min(ay, by) - lift : Math.max(ay, by) + lift
+        return `<path class="${cls}" d="M${ax},${ay} C${ax},${y} ${bx},${y} ${bx},${by}"/>`
+      }
+      /** An arrowhead whose tip touches (x, y), pointing `dir`. */
+      const head = (x: number, y: number, dir: Dir, cls: string) => {
+        const base = dir === 'down' ? y - H : y + H
+        return `<path class="head ${cls}" d="M${x},${y} L${x - 4.5},${base} L${x + 4.5},${base} Z"/>`
+      }
+      const level = (other: string) => {
+        const dy = at.get(other)!.top - at.get(selected)!.top
+        return dy > 8 ? 'below' : dy < -8 ? 'above' : 'beside'
+      }
+      const me = at.get(selected)!
+      let svg = ''
+
+      // What it uses: one wire and one arrowhead each. Wires leave from spots spread along its side.
+      const outgoing = graph[selected].map((edge) => ({ ...edge, level: level(edge.to) }))
+      for (const side of ['bottom', 'top'] as const) {
+        const group = outgoing
+          .filter((edge) => (edge.level === 'above') === (side === 'top'))
+          .sort((x, y) => at.get(x.to)!.x - at.get(y.to)!.x)
+        const step = Math.min(12, (me.width * 0.7) / Math.max(1, group.length - 1))
+        group.forEach((edge, i) => {
+          const t = at.get(edge.to)!
+          const ax = me.x + step * (i - (group.length - 1) / 2)
+          const ay = side === 'top' ? me.top : me.bottom
+          const leave: Dir = side === 'top' ? 'up' : 'down'
+          // Below it: into its top. Beside or above it: into its bottom, coming up.
+          const arrive: Dir = edge.level === 'below' ? 'down' : 'up'
+          const tip = arrive === 'down' ? t.top - 1 : t.bottom + 1
+          const base = arrive === 'down' ? tip - H : tip + H
+          svg += curve(ax, ay, leave, t.x, base, arrive, `down ${edge.kind}`) + head(t.x, tip, arrive, 'down')
+        })
+      }
+
+      // Who uses it: every wire converges on the base of a single arrowhead per side.
+      const incoming = usedBy(selected).map((edge) => ({ ...edge, level: level(edge.from) }))
+      for (const side of ['top', 'bottom'] as const) {
+        const group = incoming.filter((edge) => (edge.level === 'below') === (side === 'bottom'))
+        if (!group.length) continue
+        const arrive: Dir = side === 'top' ? 'down' : 'up'
+        const tip = side === 'top' ? me.top - 1 : me.bottom + 1
+        const base = side === 'top' ? tip - H : tip + H
+        for (const edge of group) {
+          const f = at.get(edge.from)!
+          // From above: out of its bottom. Beside or below: out of its top, arching over.
+          const leave: Dir = edge.level === 'above' ? 'down' : 'up'
+          svg += curve(f.x, leave === 'down' ? f.bottom : f.top, leave, me.x, base, arrive, `up ${edge.kind}`)
+        }
+        svg += head(me.x, tip, arrive, 'up')
+      }
+
+      wires.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`)
+      wires.innerHTML = svg
+    }
+
+    const show = (id: string) => {
+      selected = id
+      const down = new Set(graph[id].map((edge) => edge.to))
+      const up = usedBy(id)
+      const upIds = new Set(up.map((edge) => edge.from))
+      for (const button of buttons) {
+        const module = button.dataset.module!
+        button.classList.remove(...every)
+        button.setAttribute('aria-pressed', String(module === id))
+        if (module === id) button.classList.add(...states.selected)
+        else if (down.has(module)) button.classList.add(...states.down)
+        else if (upIds.has(module)) button.classList.add(...states.up)
+        else button.classList.add(...states.dim)
+      }
+      const list = (ids: string[]) => ids.map(name).join(', ')
+      const asks = graph[id].filter((edge) => edge.kind === 'ask').map((edge) => edge.to)
+      const listens = graph[id].filter((edge) => edge.kind === 'listen').map((edge) => edge.to)
+      const parts = []
+      if (asks.length) parts.push(`${caption.dataset.asks}: ${list(asks)}`)
+      if (listens.length) parts.push(`${caption.dataset.listens}: ${list(listens)}`)
+      if (up.length) parts.push(`${caption.dataset.usedBy}: ${list([...upIds])}`)
+      caption.textContent = `${name(id)} · ${parts.length ? parts.join(' · ') : caption.dataset.nothing}`
+      draw()
+    }
+
+    for (const button of buttons) {
+      const id = button.dataset.module!
+      button.addEventListener('mouseenter', () => show(id))
+      button.addEventListener('focus', () => show(id))
+      button.addEventListener('click', () => show(id))
+    }
+    new ResizeObserver(draw).observe(board)
+    show(selected)
+  }
+</script>
