@@ -72,11 +72,12 @@ body {
   width: 4.5rem;
   height: 1.1rem;
   translate: -50% 0;
-  rotate: -3deg;
-  background: rgb(213 196 161 / 0.55);
-  box-shadow: 0 1px 1px rgb(0 0 0 / 0.08);
+  rotate: -5deg;
+  /* Paper tape with torn ends: translucent, so the note and the page show through it. */
+  background: linear-gradient(rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 40%), rgb(201 184 148 / 0.5);
+  clip-path: polygon(0 8%, 4% 0, 96% 4%, 100% 14%, 97% 38%, 100% 62%, 96% 100%, 3% 94%, 0 72%, 3% 48%, 0 26%);
 }
-[data-theme='dark'] .taped::before { background: rgb(213 196 161 / 0.3); }
+[data-theme='dark'] .taped::before { background: rgb(189 174 147 / 0.75); }
 
 /*
  * On wide screens each section of the landing takes at least the screen under the header, its
