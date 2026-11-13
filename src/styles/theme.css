@@ -5,24 +5,24 @@
 /* gruvbox, as the logotype's papers: in light, warm paper inked with its dark tones; in dark, its wood.
    Green is cocido's own colour; orange (--pop) is what stands out. Corners are nearly square, like cut paper. */
 :root {
-  --background: #fbf8ef;
+  --background: #fcfbf8;
   --foreground: #282828;
-  --card: #fffdf7;
+  --card: #ffffff;
   --card-foreground: #282828;
-  --popover: #fffdf7;
+  --popover: #ffffff;
   --popover-foreground: #3c3836;
   --primary: #427b58;
   --primary-foreground: #fbf1c7;
-  --secondary: #f2ecdc;
+  --secondary: #f3f1ec;
   --secondary-foreground: #3c3836;
-  --muted: #f2ecdc;
+  --muted: #f3f1ec;
   --muted-foreground: #665c54;
-  --accent: #ebe3cf;
+  --accent: #ebe7de;
   --accent-foreground: #282828;
   --destructive: #cc241d;
   --destructive-foreground: #fbf1c7;
-  --border: #e3dac5;
-  --input: #ebe3cf;
+  --border: #ddd8cc;
+  --input: #ebe7de;
   --ring: #689d6a;
   --chart-1: #427b58;
   --chart-2: #458588;
@@ -30,13 +30,13 @@
   --chart-4: #d79921;
   --chart-5: #689d6a;
   --radius: 0.25rem;
-  --sidebar: #fbf8ef;
+  --sidebar: #fcfbf8;
   --sidebar-foreground: #665c54;
   --sidebar-primary: #427b58;
   --sidebar-primary-foreground: #fbf1c7;
-  --sidebar-accent: #ebe3cf;
+  --sidebar-accent: #ebe7de;
   --sidebar-accent-foreground: #282828;
-  --sidebar-border: #e3dac5;
+  --sidebar-border: #ddd8cc;
   --sidebar-ring: #689d6a;
   --shadow-color: #3c3836;
   --shadow-opacity: 0.16;
@@ -170,6 +170,10 @@
   --brand: #8ec07c;
   --pop: #fe8019;
 }
+
+/* The lightest paper of the cut-outs (the logotype's first o, the "coming soon" note): paler on the light page. */
+:root { --paper-light: #fef9e8; }
+[data-theme="dark"] { --paper-light: #fbf1c7; }
 @theme inline {
   --color-brand: var(--brand);
   --color-pop: var(--pop);
