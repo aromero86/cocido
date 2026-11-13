@@ -1,10 +1,14 @@
 export type Lang = 'en' | 'es'
 
+/** The folder the site is published under: '' at a domain's root, '/cocido' on GitHub Pages. */
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+const at = (path: string) => `${base}${path}`
+
 /** Where each page lives in each language, for the language switch. */
 export const routes = {
-  home: { en: '/', es: '/es/' },
-  principles: { en: '/principles/', es: '/es/principios/' },
-  guide: { en: '/guide/getting-started/', es: '/es/guide/getting-started/' },
+  home: { en: at('/'), es: at('/es/') },
+  principles: { en: at('/principles/'), es: at('/es/principios/') },
+  guide: { en: at('/guide/getting-started/'), es: at('/es/guide/getting-started/') },
 } as const
 
 const en = {

@@ -10,6 +10,8 @@ import { PACKAGE } from './src/config/site.ts'
 export default defineConfig({
   // Where it is published: cocido.dev, or SITE_URL while it lives elsewhere (a provisional address).
   site: process.env.SITE_URL ?? 'https://cocido.dev',
+  // The folder it is served from: '/' at a domain's root, '/cocido' on GitHub Pages without a domain.
+  base: process.env.BASE_PATH ?? '/',
   markdown: {
     remarkPlugins: [remarkPackageName(PACKAGE)],
   },
